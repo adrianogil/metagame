@@ -1,5 +1,6 @@
 from metagame.framework.metagame import MetaGame
 import metagame.framework.commands as commands
+import metagame.framework.simpleplayer as simpleplayer
 
 
 class MetaGameFramework(object):
@@ -11,5 +12,6 @@ class MetaGameFramework(object):
         game = MetaGame()
 
         commands.setup_game(game)
+        simpleplayer.setup_game(game)
 
         return game
