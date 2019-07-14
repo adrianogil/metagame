@@ -10,7 +10,7 @@ class MetaGame(object):
         self.actionset[action_name] = action
 
     def run_action(self, action_name, data=None):
-        self.actionset[action_name](data)
+        return self.actionset[action_name](data)
 
     def get_kgb(self, kgb_concept):
         if kgb_concept not in self.knownledge_base:
@@ -83,61 +83,20 @@ class MetaGame(object):
                 "all": [self.generate_instance_of(m) for m in self.get_kgb_instances("enemy")]
             })
 
-        self.set_kgb("command", {
-                "concept_type": "definition"
-            })
-
-        # Look
-        def look_command_action(data):
-            current_enemies = self.get_kgb("current_enemies")['all']
-
-            print("You can see: ")
-            if len(current_enemies) > 0:
-                for e in current_enemies:
-                    print(" - %s" % (e['name'],))
-            else:
-                print("- Nothing at all")
-        self.register_action("look_command_action", look_command_action)
-
-        look_command = self.generate_instance_of("command")
-        look_command['action'] = "look_command_action"
-        self.set_kgb("look_command", look_command)
-
-        # Quit
-        def quit_command_action(data):
-            exit()
-        self.register_action("quit_command_action", quit_command_action)
-
-        quit_command = self.generate_instance_of("command")
-        quit_command['action'] = "quit_command_action"
-        self.set_kgb("quit_command", quit_command)
-
-    def get_command(self):
-        user_command = input(">> ")
-        return user_command
-
-    def process_command(self, command):
-        command = self.get_kgb(command + "_command")
-        if command is None:
-            print("Can't understand your action!")
-        else:
-            data = {
-                "command": command
-            }
-            self.run_action(command['action'], data)
-
-    def start_game_loop(self):
+    def play(self):
         self.setup_metagame()
 
         game_finished = False
 
         while not game_finished:
-            user_cmd = self.get_command()
-            self.process_command(user_cmd)
+            user_cmd = self.run_action("get_user_command_action")
+            data = {"command": user_cmd }
+            self.run_action("process_user_command_action", data)
+
 
 def main_game():
     game = MetaGame()
-    game.start_game_loop()
+    game.play()
 
 
 if __name__ == "__main__":
