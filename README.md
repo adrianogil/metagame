@@ -1,2 +1,2 @@
 # metagame
-Few experiments with text-based game using ontologies
+Few experiments with text-based games
