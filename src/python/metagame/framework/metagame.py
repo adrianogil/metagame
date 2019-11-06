@@ -1,5 +1,3 @@
-from pyutils.decorators import debug
-
 
 class MetaGame(object):
     def __init__(self):
@@ -34,6 +32,9 @@ class MetaGame(object):
                     self.knownledge_base_instances[i] = [kgb_concept]
 
     def get_kgb_instances(self, kgb_instance):
+        if kgb_instance not in self.knownledge_base_instances:
+            return []
+
         return self.knownledge_base_instances[kgb_instance]
 
     def generate_instance_of(self, kgb_concept, new_concept=None):
@@ -67,20 +68,11 @@ class MetaGame(object):
         damageable = self.generate_instance_of("entity")
         damageable['health'] = 1
         damageable['on_damage'] = "on_damage_action"
-        # print("MetaGame:on_damage - set_damageable")
         self.set_kgb("damageable", damageable)
 
         # enemy
         enemy = self.generate_instance_of("damageable")
         self.set_kgb("enemy", enemy)
-
-        slime_monster = self.generate_instance_of("enemy")
-        slime_monster['name'] = "Slime"
-        self.set_kgb("slime_monster", slime_monster)
-
-        kobold_monster = self.generate_instance_of("enemy")
-        kobold_monster['name'] = "Kobold"
-        self.set_kgb("kobold_monster", kobold_monster)
 
         self.set_kgb("current_enemies", {
                 "concept_type": "enumeration",
