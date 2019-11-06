@@ -1,10 +1,13 @@
+from pyutils.decorators import debug
+
 
 class MetaGame(object):
-
     def __init__(self):
         self.knownledge_base = {}
         self.knownledge_base_instances = {}
         self.actionset = {}
+
+        self.setup_metagame()
 
     def register_action(self, action_name, action):
         self.actionset[action_name] = action
@@ -64,6 +67,7 @@ class MetaGame(object):
         damageable = self.generate_instance_of("entity")
         damageable['health'] = 1
         damageable['on_damage'] = "on_damage_action"
+        # print("MetaGame:on_damage - set_damageable")
         self.set_kgb("damageable", damageable)
 
         # enemy

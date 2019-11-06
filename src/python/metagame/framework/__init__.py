@@ -1,6 +1,6 @@
-from metagame.framework.metagame import MetaGame
-import metagame.framework.commands as commands
-import metagame.framework.simpleplayer as simpleplayer
+from .metagame import MetaGame
+from .commands import setup_game as commands_setup_game
+from .simpleplayer import setup_game as simpleplayer_setup_game
 
 
 class MetaGameFramework(object):
@@ -11,7 +11,7 @@ class MetaGameFramework(object):
     def create_game():
         game = MetaGame()
 
-        commands.setup_game(game)
-        simpleplayer.setup_game(game)
+        commands_setup_game(game)
+        simpleplayer_setup_game(game)
 
         return game
