@@ -15,3 +15,4 @@ def setup_game(game):
             "concept_type": "enumeration",
             "all": [game.generate_instance_of(m) for m in game.get_kgb_instances("enemy")]
         })
+
