@@ -10,6 +10,7 @@ class MetaGameFramework(object):
     @staticmethod
     def create_game():
         game = MetaGame()
+        game.setup_game()
 
         commands_setup_game(game)
         simpleplayer_setup_game(game)

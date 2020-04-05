@@ -53,7 +53,7 @@ class MetaGame(object):
 
         return new_concept
 
-    def setup_metagame(self):
+    def setup_game(self):
         # entity
         self.set_kgb("entity", {
             "concept_type": "definition",
@@ -80,8 +80,6 @@ class MetaGame(object):
             })
 
     def play(self):
-        self.setup_metagame()
-
         game_finished = False
 
         while not game_finished:

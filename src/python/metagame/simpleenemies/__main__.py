@@ -1,4 +1,4 @@
-from metagame.framework import MetaGameFramework
+from metagame.simpleenemies import MetaGameFramework
 
 if __name__ == "__main__":
     print("Running 'simpleenemies' game")
