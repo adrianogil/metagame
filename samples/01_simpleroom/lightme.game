@@ -1,0 +1,16 @@
+{
+    "entity": {
+        "concept_type": "definition",
+        "name": "entity"
+    },
+    "start_game": {
+        "concept_type": "definition",
+        "event_subscriber": {
+            "on_game_started": {
+                "actions": [
+                    ["print", "Hello"]
+                ]
+            }
+        }
+    }
+}
