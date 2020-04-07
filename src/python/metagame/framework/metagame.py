@@ -9,7 +9,14 @@ class MetaGame(object):
         self.knownledge_base_instances = {}
         self.events = {}
         self.action_parser = ActionParser()
-        self.setup_metagame()
+        self.action_parser.game = self.knownledge_base
+
+        self.knownledge_base["game"] = {
+            "finished": False,
+            "available_actions": [
+                "help"
+            ]
+        }
 
     def register_action(self, action_name, action):
         self.actionset[action_name] = action
@@ -129,12 +136,10 @@ class MetaGame(object):
 
     def play(self):
         self.propagate_event("on_game_started")
-        game_finished = False
 
-        while not game_finished:
-            user_cmd = self.run_action("get_user_command_action")
-            data = {"command": user_cmd }
-            self.run_action("process_user_command_action", data)
+        while not self.knownledge_base["game"]["finished"]:
+            player_cmd = self.action_parser.run_action("get_player_command_action")
+            self.action_parser.run_player_action(player_cmd)
 
 
 def main_game():
