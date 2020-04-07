@@ -1,16 +1,42 @@
 {
-    "entity": {
-        "concept_type": "definition",
-        "name": "entity"
-    },
     "start_game": {
         "concept_type": "definition",
         "event_subscriber": {
             "on_game_started": {
                 "actions": [
-                    ["print", "Hello"]
+                    ["print", "Everything is dark"]
                 ]
             }
         }
+    },
+    "turn_on_action": {
+        "concept_type": "player_action",
+        "action_name": "turn on light",
+        "actions": [
+            ["print", "Now I can see the light"],
+            ["set_concept", "game/finished", true]
+        ]
+    },
+    "look_action": {
+        "concept_type": "player_action",
+        "action_name": "look",
+        "actions": [
+            ["print", "Darkness is all you can see"]
+        ]
+    },
+    "save_action": {
+        "concept_type": "player_action",
+        "action_name": "save",
+        "actions": [
+            ["save", "game.json"]
+        ]
+    },
+    "exit_action": {
+        "concept_type": "player_action",
+        "action_name": "exit",
+        "actions": [
+            ["print", "Bye bye"],
+            ["exit"]
+        ]
     }
 }
