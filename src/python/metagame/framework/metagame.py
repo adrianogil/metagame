@@ -1,6 +1,7 @@
 from metagame.utils.printme import printme
 from .actionparser import ActionParser
 
+import metagame.utils.printme as printmodule
 import json
 
 
@@ -73,11 +74,18 @@ class MetaGame(object):
             self.load_game_data(game_files)
 
     def play(self):
-        printme("=" * 8 + " Starting game " + "=" * 8 + "\n\n")
-        self.propagate_event("on_game_started")
+        if "history" in self.knownledge_base["game"]:
+            for history_log in self.knownledge_base["game"]["history"]:
+                print(history_log)
+        else:
+            self.knownledge_base["game"]["history"] = []
+            printmodule.set_game_buffer(self.knownledge_base["game"])
+            printme("=" * 8 + " Starting game " + "=" * 8 + "\n\n")
+            self.propagate_event("on_game_started")
 
         while not self.knownledge_base["game"]["finished"]:
             player_cmd = self.action_parser.run_action("get_player_command_action")
+            printme(">> %s" % (player_cmd,), only_history=True)
             self.action_parser.run_player_action(player_cmd)
 
 
