@@ -4,12 +4,20 @@
         "event_subscriber": {
             "on_game_started": {
                 "actions": [
-                    ["print", "Everything is dark"]
+                    ["print", "Everything is darkness"]
                 ]
             }
         }
     },
-    "turn_on_action": {
+    "show_world_action": {
+        "concept_type": "action",
+        "actions": [
+            ["print", ["grammar", {"text": ["Everything is darkness",
+                                            "Darkness is not your friend here",
+                                            "Too dark!"]}]]
+        ]
+    },
+    "turn_on_cmd": {
         "concept_type": "player_action",
         "action_name": "turn on light",
         "actions": [
@@ -17,21 +25,21 @@
             ["set_concept", "game/finished", true]
         ]
     },
-    "look_action": {
+    "look_cmd": {
         "concept_type": "player_action",
         "action_name": "look",
         "actions": [
-            ["print", "Darkness is all you can see"]
+            ["show_world_action"]
         ]
     },
-    "save_action": {
+    "save_cmd": {
         "concept_type": "player_action",
         "action_name": "save",
         "actions": [
             ["save", "game.json"]
         ]
     },
-    "exit_action": {
+    "exit_cmd": {
         "concept_type": "player_action",
         "action_name": "exit",
         "actions": [

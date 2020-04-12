@@ -1,4 +1,5 @@
 from metagame.utils.printme import printme
+from .grammar import SimpleGrammar
 
 from prompt_toolkit import PromptSession
 import json
@@ -8,8 +9,13 @@ import sys
 class ActionParser:
     def __init__(self):
         self.player_actions = {}
+        self.custom_actions = {}
         self.game = None
         self.session = PromptSession()
+
+    def add_custom_action(self, action_name, actions):
+        printme("ActionParser:add_player_action - action_name: " + action_name, debug=True)
+        self.custom_actions[action_name] = actions
 
     def add_player_action(self, action_name, actions):
         printme("ActionParser:add_player_action - action_name: " + action_name, debug=True)
@@ -21,7 +27,12 @@ class ActionParser:
         if action_name == "get_player_command_action":
             return self.session.prompt(">> ")
         elif action_name == "print":
-            printme(str(data[0]))
+            msg = data[0]
+
+            if msg.__class__ == list:
+                msg = self.run_action(msg[0], msg[1:])
+
+            printme(str(msg))
         elif action_name == "exit":
             sys.exit()
         elif action_name == "save":
@@ -36,6 +47,11 @@ class ActionParser:
             for keyword in target_keywords[:-1]:
                 current_concept = current_concept[keyword]
             current_concept[target_keywords[-1]] = target_value
+        elif action_name == "grammar":
+            grammar = SimpleGrammar()
+            return grammar.parse(data[0])
+        elif action_name in self.custom_actions:
+            self.run_actions(self.custom_actions[action_name])
 
     def run_actions(self, actions):
         for action in actions:

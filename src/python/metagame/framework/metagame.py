@@ -54,7 +54,11 @@ class MetaGame(object):
             for event in event_data:
                 self.register_event_subscriber(event, concept)
         if "concept_type" in meaning:
-            if meaning["concept_type"] == "player_action":
+            if meaning["concept_type"] == "action":
+                self.action_parser.add_custom_action(
+                    concept,
+                    meaning["actions"])
+            elif meaning["concept_type"] == "player_action":
                 self.action_parser.add_player_action(
                     meaning["action_name"],
                     meaning["actions"])
