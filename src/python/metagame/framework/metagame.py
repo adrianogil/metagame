@@ -47,7 +47,6 @@ class MetaGame(object):
 
     def parse_concept(self, concept, meaning):
         printme("MetaGame:parse_concept - " + concept, debug=True)
-        self.knownledge_base[concept] = meaning
 
         if "event_subscriber" in meaning:
             event_data = meaning["event_subscriber"]
@@ -62,6 +61,14 @@ class MetaGame(object):
                 self.action_parser.add_player_action(
                     meaning["action_name"],
                     meaning["actions"])
+            elif meaning["concept_type"] == "instance":
+                parent_meaning = meaning["instanceof"]
+                new_meaning = self.knownledge_base[parent_meaning]
+                for subconcept in meaning:
+                    new_meaning[subconcept] = meaning[subconcept]
+                new_meaning["concept_type"] = "definition"
+                meaning = new_meaning
+        self.knownledge_base[concept] = meaning
 
     def load_game_data(self, game_file_data):
         with open(game_file_data, 'r') as f:

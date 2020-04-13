@@ -21,9 +21,22 @@ class ActionParser:
         printme("ActionParser:add_player_action - action_name: " + action_name, debug=True)
         self.player_actions[action_name] = actions
 
-    def run_action(self, action_name, data=None):
+    def run_action(self, action_name, data=None, parent_args=None):
         printme("[Debug] running action: " + action_name +
                 " with data %s" % (data,), debug=True)
+
+        if data is not None:
+            new_data = []
+            for arg in data:
+                if arg.__class__ == list:
+                    arg = self.run_actions(arg)
+                if arg.__class__ == str:
+                    if arg.startswith("!arg"):
+                        arg_number = int(arg[4:])
+                        arg = parent_args[arg_number - 1]
+                new_data.append(arg)
+            data = new_data
+
         if action_name == "get_player_command_action":
             return self.session.prompt(">> ")
         elif action_name == "print":
@@ -38,14 +51,29 @@ class ActionParser:
         elif action_name == "save":
             with open(data[0], 'w') as f:
                 json.dump(self.game, f)
+        elif action_name == "get_concept":
+            target_keywords = data[0].split("/")
+            current_concept = self.game
+
+            for keyword in target_keywords:
+                current_concept = current_concept[keyword]
+            return current_concept
+
         elif action_name == "set_concept":
             target_keywords = data[0].split("/")
             target_value = data[1]
+            if len(data) > 2:
+                # concept meaning will be a list
+                target_value = data[1:]
 
             current_concept = self.game
 
             for keyword in target_keywords[:-1]:
+                if keyword not in current_concept:
+                    # Create a subconcept
+                    current_concept[keyword] = {}
                 current_concept = current_concept[keyword]
+
             current_concept[target_keywords[-1]] = target_value
         elif action_name == "grammar":
             grammar = SimpleGrammar()
@@ -53,9 +81,9 @@ class ActionParser:
         elif action_name in self.custom_actions:
             self.run_actions(self.custom_actions[action_name])
 
-    def run_actions(self, actions):
+    def run_actions(self, actions, args=None):
         for action in actions:
-            self.run_action(action[0], action[1:])
+            self.run_action(action[0], action[1:], args)
 
     def run_player_action(self, player_action):
         # player_cmds = player_action.split(" ")

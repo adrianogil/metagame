@@ -1,0 +1,95 @@
+{
+    "start_game": {
+        "concept_type": "definition",
+        "event_subscriber": {
+            "on_game_started": {
+                "actions": [
+                    ["print", "The door is locked. What can you do?"],
+                    ["set_concept", "game/world/objects", ["get_concept", "chest_object"],
+                                                          ["get_concept", "door_object"]]
+                ]
+            }
+        }
+    },
+    "show_world": {
+        "concept_type": "action",
+        "actions": [
+            ["print", ["grammar", {"text": ["There are a door and a chest."]}]]
+        ]
+    },
+    "add_to_inventory": {
+        "concept_type": "action",
+        "actions": [
+            ["set_concept", "game/inventory", "!arg1"],
+            ["print", "You added ", "!arg1", "to your inventory"]
+        ]
+    },
+    "chest": {
+        "concept_type": "definition",
+        "properties": [
+            "openable"
+        ],
+        "event_receiver": {
+            "on_open": {
+                "actions": [
+                    ["add_to_inventory", ["get_obj_concept", "contains"]]
+                ]
+            }
+        }
+    },
+    "door": {
+        "concept_type": "definition",
+        "properties": [
+            "openable"
+        ]
+    },
+    "chest_object": {
+        "concept_type": "instance",
+
+        "instanceof": "chest",
+        "contains": "key"
+    },
+    "door_object": {
+        "concept_type": "instance",
+
+        "instanceof": "door",
+        "locked": true,
+        "event_receiver": {
+            "on_open": {
+                "actions": [
+                    ["add_to_inventory", ["get_obj_concept", "contains"]],
+                    ["set_concept", "game/finished", true]
+                ]
+            }
+        }
+    },
+    "turn_on_action": {
+        "concept_type": "player_action",
+        "action_name": "turn on light",
+        "actions": [
+            ["print", "Now I can see the light"]
+        ]
+    },
+    "look_action": {
+        "concept_type": "player_action",
+        "action_name": "look",
+        "actions": [
+            ["show_world_action"]
+        ]
+    },
+    "save_action": {
+        "concept_type": "player_action",
+        "action_name": "save",
+        "actions": [
+            ["save", "game.json"]
+        ]
+    },
+    "exit_action": {
+        "concept_type": "player_action",
+        "action_name": "exit",
+        "actions": [
+            ["print", "Bye bye"],
+            ["exit"]
+        ]
+    }
+}
