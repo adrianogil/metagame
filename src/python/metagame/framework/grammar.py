@@ -1,4 +1,5 @@
 """ Main class for text generation """
+from metagame.utils.printme import printme
 
 from random import randint
 
@@ -79,10 +80,13 @@ class SimpleGrammar:
         return text_evaluated
 
     def parse(self, data):
+        printme("[Debug] SimpleGrammar.parse - parsing grammar: %s" % (data,), debug=True)
+
         if data.__class__ == dict:
             return self.parse_dict(data)
 
     def parse_dict(self, dict_data):
+        printme("[Debug] SimpleGrammar.parse_dict - parsing grammar: %s" % (dict_data,), debug=True)
         for key in dict_data:
             self.add_tag(key, dict_data[key])
         return self.evaluate("#text#")

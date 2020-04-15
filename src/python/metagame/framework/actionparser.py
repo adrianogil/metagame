@@ -2,13 +2,20 @@ from metagame.utils.printme import printme
 from .grammar import SimpleGrammar
 
 from prompt_toolkit import PromptSession
+
+import metagame.utils.printme
+
 import json
 import sys
 
 
 class ActionParser:
     def __init__(self):
-        self.player_actions = {}
+        self.player_actions = {
+            "debug": [
+                ["toggle_debug"]
+            ]
+        }
         self.custom_actions = {}
         self.game = None
         self.session = PromptSession()
@@ -77,13 +84,28 @@ class ActionParser:
             current_concept[target_keywords[-1]] = target_value
         elif action_name == "grammar":
             grammar = SimpleGrammar()
-            return grammar.parse(data[0])
+
+            target_grammar = data[0]
+            if target_grammar.__class__ == list:
+                target_grammar = target_grammar[0]
+            printme("[Debug] loading grammar: %s" % (target_grammar,), debug=True)
+
+            text = grammar.parse(target_grammar)
+
+            printme("[Debug] grammar generated text: %s" % (text,), debug=True)
+
+            return text
         elif action_name in self.custom_actions:
             self.run_actions(self.custom_actions[action_name])
+        elif action_name == "toggle_debug":
+            metagame.utils.printme.show_debug = not metagame.utils.printme.show_debug
 
     def run_actions(self, actions, args=None):
-        for action in actions:
-            self.run_action(action[0], action[1:], args)
+        if len(actions) > 0 and actions[0].__class__ == list:
+            for action in actions:
+                self.run_action(action[0], action[1:], args)
+        else:
+            return self.run_action(actions[0], actions[1:], args)
 
     def run_player_action(self, player_action):
         # player_cmds = player_action.split(" ")
