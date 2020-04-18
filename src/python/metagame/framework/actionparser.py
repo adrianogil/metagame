@@ -36,7 +36,7 @@ class ActionParser:
             new_data = []
             for arg in data:
                 if arg.__class__ == list:
-                    arg = self.run_actions(arg)
+                    arg = self.run_actions(arg, parent_args)
                 if arg.__class__ == str:
                     if arg.startswith("!arg"):
                         arg_number = int(arg[4:])
