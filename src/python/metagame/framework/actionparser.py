@@ -41,6 +41,9 @@ class ActionParser:
                     if arg.startswith("!arg"):
                         arg_number = int(arg[4:])
                         arg = parent_args[arg_number - 1]
+                    elif parent_args.__class__ == dict:
+                        for key in parent_args:
+                            arg = arg.replace("#" + key + "#", parent_args[key])
                 new_data.append(arg)
             data = new_data
 
@@ -107,6 +110,35 @@ class ActionParser:
         else:
             return self.run_action(actions[0], actions[1:], args)
 
+    def actions_matches(self, player_action, registered_action):
+        words_player_action = player_action.split(" ")
+        words_registered_action = registered_action.split(" ")
+
+        if len(words_registered_action) != len(words_player_action):
+            return False
+
+        for action, register in zip(words_player_action, words_registered_action):
+            printme("[Debug] actions_matches: %s - %s" % (action, register), debug=True)
+            if action != register and not register.isupper():
+                printme("[Debug] actions_matches: %s - %s - return False" % (action, register), debug=True)
+                return False
+
+
+        printme("[Debug] actions_matches: %s - %s - return True" % (player_action, registered_action), debug=True)
+        return True
+
+    def parse_actions_args(self, player_action, registered_action):
+        words_player_action = player_action.strip().split(" ")
+        words_registered_action = registered_action.strip().split(" ")
+
+        dict_arg = {}
+
+        for action, register in zip(words_player_action, words_registered_action):
+            if register.isupper():
+                dict_arg[register] = action
+
+        return dict_arg
+
     def run_player_action(self, player_action):
         # player_cmds = player_action.split(" ")
 
@@ -120,5 +152,6 @@ class ActionParser:
                 printme("- %s" % (action,))
         else:
             for action in self.player_actions:
-                if player_action.startswith(action):
-                    self.run_actions(self.player_actions[action])
+                if self.actions_matches(player_action, action):
+                    self.run_actions(self.player_actions[action],
+                                     self.parse_actions_args(player_action, action))

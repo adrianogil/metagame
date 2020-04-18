@@ -80,6 +80,13 @@
             ["show_world"]
         ]
     },
+    "look_object_action": {
+        "concept_type": "player_action",
+        "action_name": ["look OBJECT", "look at OBJECT"],
+        "actions": [
+            ["print", "What is #OBJECT#?"]
+        ]
+    },
     "save_action": {
         "concept_type": "player_action",
         "action_name": "save",

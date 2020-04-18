@@ -58,9 +58,15 @@ class MetaGame(object):
                     concept,
                     meaning["actions"])
             elif meaning["concept_type"] == "player_action":
-                self.action_parser.add_player_action(
-                    meaning["action_name"],
-                    meaning["actions"])
+                if meaning["action_name"].__class__ == list:
+                    for player_action in meaning["action_name"]:
+                        self.action_parser.add_player_action(
+                            player_action,
+                            meaning["actions"])
+                else:
+                    self.action_parser.add_player_action(
+                        meaning["action_name"],
+                        meaning["actions"])
             elif meaning["concept_type"] == "instance":
                 parent_meaning = meaning["instanceof"]
                 new_meaning = self.knownledge_base[parent_meaning]
