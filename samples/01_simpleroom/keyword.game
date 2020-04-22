@@ -5,8 +5,9 @@
             "on_game_started": {
                 "actions": [
                     ["print", "The door is locked. What can you do?"],
-                    ["set_concept", "game/world/objects/chest_object", ["get_concept", "chest_object"]],
-                    ["set_concept", "game/world/objects/door_object", ["get_concept", "door_object"]]
+                    ["add_obj_to_world", "chest_object"],
+                    ["add_obj_to_world", "door_object"],
+                    ["add_obj_to_world", "key_object"]
                 ]
             }
         }
@@ -14,17 +15,31 @@
     "show_world": {
         "concept_type": "action",
         "actions": [
-            ["print", ["grammar", {
-                                    "text": ["There are a door and a chest.",
-                                             "There are a door and a chest. \nWhat else? Nothing else."]
-                                   }]]
+            ["verify", "concept_exists", "game/world/objects/key_object",
+                ["print", ["grammar", {
+                                    "text": ["#world_items# #extra#"],
+                                    "world_items" :["There are a door, a chest and a key."],
+                                    "extra": ["\nWhat else? Nothing else."]
+                                   }]],
+                ["print", ["grammar", {
+                                    "text": ["#world_items# #extra#"],
+                                    "world_items" :["There are a door and a chest."],
+                                    "extra": ["\nWhat else? Nothing else."]
+                                   }]]]
+        ]
+    },
+    "add_obj_to_world": {
+        "concept_type": "action",
+        "actions": [
+            ["set_concept", "game/world/objects/#arg1#", ["get_concept", "#arg1#"]]
         ]
     },
     "add_to_inventory": {
         "concept_type": "action",
         "actions": [
-            ["set_concept", "game/inventory", "!arg1"],
-            ["print", "You added ", "!arg1", "to your inventory"]
+            ["set_concept", "game/inventory/#arg1#_object", ["get_concept", "#arg1#_object"]],
+            ["print", "You added ", "#arg1#", " to your inventory"],
+            ["remove_concept", "game/world/objects/#arg1#_object"]
         ]
     },
     "chest": {
@@ -51,6 +66,18 @@
         ],
         "description": ["grammar", {"text": ["It's a simple door.",
                                              "Nothing more than a door."]}]
+    },
+    "key": {
+        "concept_type": "definition",
+        "properties": [
+            "pickable"
+        ],
+        "object_name": "key",
+        "description": ["grammar", {"text": ["It's a small key."]}]
+    },
+    "key_object": {
+        "concept_type": "instance",
+        "instanceof": "key"
     },
     "chest_object": {
         "concept_type": "instance",
@@ -89,6 +116,30 @@
         "action_name": ["look OBJECT", "look at OBJECT"],
         "actions": [
             ["print", ["get_concept", "game/world/objects/#OBJECT#_object/description"]]
+        ]
+    },
+    "attempt_to_pick": {
+        "concept_type": "action",
+        "actions": [
+            ["verify", "concept_exists", "game/world/objects/#arg1#_object",
+                ["verify", "concept_exists", "game/world/objects/#arg1#_object/properties/pickable",
+                    ["add_to_inventory", "#arg1#"]]]
+        ]
+    },
+    "pick_action": {
+        "concept_type": "player_action",
+        "action_name": ["pick OBJECT"],
+        "actions": [
+            ["attempt_to_pick", "#OBJECT#"]
+        ]
+    },
+    "inventory_action": {
+        "concept_type": "player_action",
+        "action_name": ["inventory", "i"],
+        "actions": [
+            ["print", "In you inventory, you can find:"],
+            ["for_each_concept", "game/inventory",
+                ["print", "- ", ["get_concept", "game/inventory/#arg1#/object_name"]]]
         ]
     },
     "save_action": {

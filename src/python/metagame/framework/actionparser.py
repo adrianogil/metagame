@@ -29,33 +29,38 @@ class ActionParser:
         self.player_actions[action_name] = actions
 
     def run_action(self, action_name, data=None, parent_args=None):
-        printme("[Debug] running action: " + action_name +
-                " with data %s" % (data,), debug=True)
+        printme("running action: %s with data %s and parent args: %s" %
+                (action_name, data, parent_args), debug=True)
 
         if data is not None:
             new_data = []
             for arg in data:
-                if arg.__class__ == list:
+                if (action_name != "verify" and action_name != "for_each_concept") and arg.__class__ == list:
                     arg = self.run_actions(arg, parent_args)
                 if arg.__class__ == str:
-                    if arg.startswith("!arg"):
-                        arg_number = int(arg[4:])
-                        arg = parent_args[arg_number - 1]
-                    elif parent_args.__class__ == dict:
+                    if parent_args.__class__ == dict:
                         for key in parent_args:
                             arg = arg.replace("#" + key + "#", parent_args[key])
+                    elif parent_args.__class__ == list:
+                        for index, arg_value in enumerate(parent_args):
+                            printme("attempt to replace %s in %s with data %s " %
+                                    ("#arg" + str(index + 1) + "#", arg, arg_value), debug=True)
+                            arg = arg.replace("#arg" + str(index + 1) + "#", arg_value)
                 new_data.append(arg)
             data = new_data
 
         if action_name == "get_player_command_action":
             return self.session.prompt(">> ")
         elif action_name == "print":
-            msg = data[0]
+            print_msg = ""
 
-            if msg.__class__ == list:
-                msg = self.run_action(msg[0], msg[1:])
+            for print_arg in data:
+                msg = print_arg
+                if msg.__class__ == list:
+                    msg = self.run_action(msg[0], msg[1:], parent_args)
+                print_msg += str(msg)
 
-            printme(str(msg))
+            printme(print_msg)
         elif action_name == "exit":
             sys.exit()
         elif action_name == "save":
@@ -85,25 +90,81 @@ class ActionParser:
                 current_concept = current_concept[keyword]
 
             current_concept[target_keywords[-1]] = target_value
+        elif action_name == "remove_concept":
+            target_keywords = data[0].split("/")
+
+            current_concept = self.game
+
+            for keyword in target_keywords[:-1]:
+                if keyword not in current_concept:
+                    # Create a subconcept
+                    current_concept[keyword] = {}
+                current_concept = current_concept[keyword]
+
+            current_concept.pop(target_keywords[-1])
         elif action_name == "grammar":
             grammar = SimpleGrammar()
 
             target_grammar = data[0]
             if target_grammar.__class__ == list:
                 target_grammar = target_grammar[0]
-            printme("[Debug] loading grammar: %s" % (target_grammar,), debug=True)
+            printme("loading grammar: %s" % (target_grammar,), debug=True)
 
             text = grammar.parse(target_grammar)
 
-            printme("[Debug] grammar generated text: %s" % (text,), debug=True)
+            printme("grammar generated text: %s" % (text,), debug=True)
 
             return text
+        elif action_name == "verify":
+            verify_result = True
+
+            true_action = None
+            false_action = None
+
+            if data[0] == "concept_exists":
+                current_concept = self.game
+
+                target_keywords = data[1].split("/")
+
+                for keyword in target_keywords[:-1]:
+                    if keyword not in current_concept:
+                        # Create a subconcept
+                        current_concept[keyword] = {}
+                    current_concept = current_concept[keyword]
+
+                verify_result = target_keywords[-1] in current_concept
+                true_action = data[2]
+                if len(data) > 3:  # Optional argument
+                    false_action = data[3]
+
+            if verify_result:
+                printme("verify - running true action", debug=True)
+                self.run_actions(true_action, parent_args)
+            else:
+                printme("verify - running false action", debug=True)
+                self.run_actions(false_action, parent_args)
+        elif action_name == "for_each_concept":
+            current_concept = self.game
+
+            target_keywords = data[0].split("/")
+
+            for keyword in target_keywords:
+                if keyword not in current_concept:
+                    # Create a subconcept
+                    current_concept[keyword] = {}
+                current_concept = current_concept[keyword]
+
+            for concept in current_concept:
+                self.run_actions(data[1], [concept])
         elif action_name in self.custom_actions:
-            self.run_actions(self.custom_actions[action_name])
+            self.run_actions(self.custom_actions[action_name], data)
         elif action_name == "toggle_debug":
             metagame.utils.printme.show_debug = not metagame.utils.printme.show_debug
 
     def run_actions(self, actions, args=None):
+        if actions is None:
+            return
+
         if len(actions) > 0 and actions[0].__class__ == list:
             for action in actions:
                 self.run_action(action[0], action[1:], args)
@@ -118,13 +179,13 @@ class ActionParser:
             return False
 
         for action, register in zip(words_player_action, words_registered_action):
-            printme("[Debug] actions_matches: %s - %s" % (action, register), debug=True)
+            printme("actions_matches: %s - %s" % (action, register), debug=True)
             if action != register and not register.isupper():
-                printme("[Debug] actions_matches: %s - %s - return False" % (action, register), debug=True)
+                printme("actions_matches: %s - %s - return False" % (action, register), debug=True)
                 return False
 
 
-        printme("[Debug] actions_matches: %s - %s - return True" % (player_action, registered_action), debug=True)
+        printme("actions_matches: %s - %s - return True" % (player_action, registered_action), debug=True)
         return True
 
     def parse_actions_args(self, player_action, registered_action):

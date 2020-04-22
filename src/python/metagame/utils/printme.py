@@ -11,6 +11,9 @@ def set_game_buffer(game_buffer):
 
 
 def printme(msg, debug=False, only_history=False):
+    if debug:
+        msg = "[Debug] " + msg
+
     if not debug and target_buffer["game"]:
         target_buffer["game"]["history"].append(msg)
 
