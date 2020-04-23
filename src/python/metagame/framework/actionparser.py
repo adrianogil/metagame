@@ -35,7 +35,8 @@ class ActionParser:
         if data is not None:
             new_data = []
             for arg in data:
-                if (action_name != "verify" and action_name != "for_each_concept") and arg.__class__ == list:
+                if (action_name != "verify" and
+                   action_name != "for_each_concept") and arg.__class__ == list:
                     arg = self.run_actions(arg, parent_args)
                 if arg.__class__ == str:
                     if parent_args.__class__ == dict:
@@ -46,6 +47,7 @@ class ActionParser:
                             printme("attempt to replace %s in %s with data %s " %
                                     ("#arg" + str(index + 1) + "#", arg, arg_value), debug=True)
                             arg = arg.replace("#arg" + str(index + 1) + "#", arg_value)
+                printme("final arg: %s" % (arg,), debug=True)
                 new_data.append(arg)
             data = new_data
 
@@ -72,6 +74,9 @@ class ActionParser:
 
             for keyword in target_keywords:
                 current_concept = current_concept[keyword]
+
+            printme("Returns concept %s" % (current_concept,), debug=True)
+
             return current_concept
 
         elif action_name == "set_concept":
@@ -101,7 +106,10 @@ class ActionParser:
                     current_concept[keyword] = {}
                 current_concept = current_concept[keyword]
 
-            current_concept.pop(target_keywords[-1])
+            if current_concept.__class__ == list:
+                current_concept.remove(target_keywords[-1])
+            else:
+                current_concept.pop(target_keywords[-1])
         elif action_name == "grammar":
             grammar = SimpleGrammar()
 
@@ -121,7 +129,12 @@ class ActionParser:
             true_action = None
             false_action = None
 
-            if data[0] == "concept_exists":
+            if data[0].__class__ == list:
+                verify_result = self.run_actions(data[0], parent_args)
+                true_action = data[1]
+                if len(data) > 2:  # Optional argument
+                    false_action = data[2]
+            elif data[0] == "concept_exists":
                 current_concept = self.game
 
                 target_keywords = data[1].split("/")
@@ -139,10 +152,10 @@ class ActionParser:
 
             if verify_result:
                 printme("verify - running true action", debug=True)
-                self.run_actions(true_action, parent_args)
+                return self.run_actions(true_action, parent_args)
             else:
                 printme("verify - running false action", debug=True)
-                self.run_actions(false_action, parent_args)
+                return self.run_actions(false_action, parent_args)
         elif action_name == "for_each_concept":
             current_concept = self.game
 
@@ -154,8 +167,14 @@ class ActionParser:
                     current_concept[keyword] = {}
                 current_concept = current_concept[keyword]
 
-            for concept in current_concept:
+            concept_list = current_concept.copy()
+
+            for concept in concept_list:
                 self.run_actions(data[1], [concept])
+        elif action_name == "run":
+            return self.run_actions(data[0], parent_args)
+        elif action_name == "return":
+            return data[0]
         elif action_name in self.custom_actions:
             self.run_actions(self.custom_actions[action_name], data)
         elif action_name == "toggle_debug":
@@ -166,8 +185,9 @@ class ActionParser:
             return
 
         if len(actions) > 0 and actions[0].__class__ == list:
-            for action in actions:
+            for action in actions[:-1]:
                 self.run_action(action[0], action[1:], args)
+            return self.run_action(actions[-1][0], actions[-1][1:], args)
         else:
             return self.run_action(actions[0], actions[1:], args)
 

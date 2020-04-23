@@ -3,6 +3,7 @@ from .actionparser import ActionParser
 
 import metagame.utils.printme as printmodule
 import json
+import copy
 
 
 class MetaGame(object):
@@ -69,7 +70,7 @@ class MetaGame(object):
                         meaning["actions"])
             elif meaning["concept_type"] == "instance":
                 parent_meaning = meaning["instanceof"]
-                new_meaning = self.knownledge_base[parent_meaning]
+                new_meaning = copy.deepcopy(self.knownledge_base[parent_meaning])
                 for subconcept in meaning:
                     new_meaning[subconcept] = meaning[subconcept]
                 new_meaning["concept_type"] = "definition"

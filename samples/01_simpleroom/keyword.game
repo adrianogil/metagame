@@ -38,8 +38,13 @@
         "concept_type": "action",
         "actions": [
             ["set_concept", "game/inventory/#arg1#_object", ["get_concept", "#arg1#_object"]],
-            ["print", "You added ", "#arg1#", " to your inventory"],
-            ["remove_concept", "game/world/objects/#arg1#_object"]
+            ["print", "You added ", ["get_concept", "game/inventory/#arg1#_object/object_name"], " to your inventory"]
+        ]
+    },
+    "send_event": {
+        "concept_type": "action",
+        "actions": [
+            ["run", ["get_concept", "#arg1#/event_receiver/on_#arg2#/actions"]]
         ]
     },
     "chest": {
@@ -47,10 +52,19 @@
         "properties": [
             "openable"
         ],
+        "verify_open": ["return", true],
         "event_receiver": {
             "on_open": {
                 "actions": [
-                    ["add_to_inventory", ["get_obj_concept", "contains"]]
+                    ["verify",
+                        ["run", ["get_concept", "#arg1#/verify_open"]],
+                        [
+                            ["for_each_concept", "#arg1#/contains",
+                                [
+                                    ["add_to_inventory", "#arg1#"]
+                                ]],
+                            ["remove_concept", "#arg1#/contains"]
+                        ]]
                 ]
             }
         },
@@ -61,6 +75,7 @@
     },
     "door": {
         "concept_type": "definition",
+        "verify_open": ["return", true],
         "properties": [
             "openable"
         ],
@@ -77,22 +92,50 @@
     },
     "key_object": {
         "concept_type": "instance",
-        "instanceof": "key"
+        "instanceof": "key",
+        "object_name": "small key"
+    },
+    "big_key_object": {
+        "concept_type": "instance",
+        "instanceof": "key",
+        "object_name": "big key"
     },
     "chest_object": {
         "concept_type": "instance",
+        "verify_open": ["verify", "concept_exists", "game/inventory/key_object",
+                            [
+                                ["remove_concept", "game/inventory/key_object"],
+                                ["return", true]
+                            ],
+                            [
+                                ["print", "Chest is locked"],
+                                ["return", false]
+                            ]],
         "instanceof": "chest",
-        "contains": "key"
+        "contains": ["big_key"]
     },
     "door_object": {
         "concept_type": "instance",
         "instanceof": "door",
         "locked": true,
+        "verify_open": ["verify", "concept_exists", "game/inventory/big_key_object",
+                            [
+                                ["remove_concept", "game/inventory/big_key_object"],
+                                ["return", true]
+                            ],
+                            [
+                                ["print", "Door is locked"],
+                                ["return", false]
+                            ]],
         "event_receiver": {
             "on_open": {
                 "actions": [
-                    ["add_to_inventory", ["get_obj_concept", "contains"]],
-                    ["set_concept", "game/finished", true]
+                    ["verify",
+                        ["run", ["get_concept", "#arg1#/verify_open"]],
+                        [
+                            ["print", "Now you are free to go!"],
+                            ["set_concept", "game/finished", true]
+                        ]]
                 ]
             }
         }
@@ -123,7 +166,10 @@
         "actions": [
             ["verify", "concept_exists", "game/world/objects/#arg1#_object",
                 ["verify", "concept_exists", "game/world/objects/#arg1#_object/properties/pickable",
-                    ["add_to_inventory", "#arg1#"]]]
+                    [
+                        ["add_to_inventory", "#arg1#"],
+                        ["remove_concept", "game/world/objects/#arg1#_object"]
+                    ]]]
         ]
     },
     "pick_action": {
@@ -140,6 +186,25 @@
             ["print", "In you inventory, you can find:"],
             ["for_each_concept", "game/inventory",
                 ["print", "- ", ["get_concept", "game/inventory/#arg1#/object_name"]]]
+        ]
+    },
+    "attempt_to_open": {
+        "concept_type": "action",
+        "actions": [
+            ["verify", "concept_exists", "game/world/objects/#arg1#_object",
+                ["verify", "concept_exists", "game/world/objects/#arg1#_object/properties/openable",
+                    [
+                        ["print", "So you decided to open ", "#arg1#"],
+                        ["send_event", "game/world/objects/#arg1#_object", "open"]
+                    ]],
+                ["print", "#arg1#", " does not exist!"]]
+        ]
+    },
+    "open_action": {
+        "concept_type": "player_action",
+        "action_name": ["open OBJECT"],
+        "actions": [
+            ["attempt_to_open", "#OBJECT#"]
         ]
     },
     "save_action": {
