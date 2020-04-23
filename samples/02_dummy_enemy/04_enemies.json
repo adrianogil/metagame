@@ -1,0 +1,27 @@
+{
+    "damageable_entity": {
+        "properties": [
+            "damageable"
+        ],
+        "health": {
+            "max": 10,
+            "current": 10
+        }
+    },
+    "enemy": {
+        "concept_type": "instance",
+        "instanceof": "damageable_entity",
+        "name": "enemy"
+    },
+    "create_enemy": {
+        "concept_type": "action",
+        "actions": [
+            ["instantiate", "enemy", "game/world/enemies"],
+            ["set_concept", "#LAST_INSTANTIATE_ENTITY#/name",
+                ["grammar", {"text": ["#name# #surname#"],
+                             "name": ["Dummy", "Special"],
+                             "surname": ["Plastic Kobold", "Kobold Doll"]
+                            }]]
+        ]
+    }
+}

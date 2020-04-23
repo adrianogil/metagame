@@ -221,5 +221,12 @@
             ["print", "Bye bye"],
             ["exit"]
         ]
+    },
+    "debug_run_action": {
+        "concept_type": "player_action",
+        "action_name": ["debug COMMAND"],
+        "actions": [
+            ["run", "#COMMAND#"]
+        ]
     }
 }

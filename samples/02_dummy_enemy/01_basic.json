@@ -1,0 +1,80 @@
+{
+    "add_obj_to_world": {
+        "concept_type": "action",
+        "actions": [
+            ["set_concept", "game/world/objects/#arg1#", ["get_concept", "#arg1#"]]
+        ]
+    },
+    "send_event": {
+        "concept_type": "action",
+        "actions": [
+            ["run", ["get_concept", "#arg1#/event_receiver/on_#arg2#/actions"]]
+        ]
+    },
+    "look_action": {
+        "concept_type": "player_action",
+        "action_name": "look",
+        "actions": [
+            ["show_world"]
+        ]
+    },
+    "look_object_action": {
+        "concept_type": "player_action",
+        "action_name": ["look OBJECT", "look at OBJECT"],
+        "actions": [
+            ["print", ["get_concept", "game/world/objects/#OBJECT#_object/description"]]
+        ]
+    },
+    "attempt_to_pick": {
+        "concept_type": "action",
+        "actions": [
+            ["verify", "concept_exists", "game/world/objects/#arg1#_object",
+                ["verify", "concept_exists", "game/world/objects/#arg1#_object/properties/pickable",
+                    [
+                        ["add_to_inventory", "#arg1#"],
+                        ["remove_concept", "game/world/objects/#arg1#_object"]
+                    ]]]
+        ]
+    },
+    "pick_action": {
+        "concept_type": "player_action",
+        "action_name": ["pick OBJECT"],
+        "actions": [
+            ["attempt_to_pick", "#OBJECT#"]
+        ]
+    },
+    "attempt_to_open": {
+        "concept_type": "action",
+        "actions": [
+            ["verify", "concept_exists", "game/world/objects/#arg1#_object",
+                ["verify", "concept_exists", "game/world/objects/#arg1#_object/properties/openable",
+                    [
+                        ["print", "So you decided to open ", "#arg1#"],
+                        ["send_event", "game/world/objects/#arg1#_object", "open"]
+                    ]],
+                ["print", "#arg1#", " does not exist!"]]
+        ]
+    },
+    "open_action": {
+        "concept_type": "player_action",
+        "action_name": ["open OBJECT"],
+        "actions": [
+            ["attempt_to_open", "#OBJECT#"]
+        ]
+    },
+    "save_action": {
+        "concept_type": "player_action",
+        "action_name": "save",
+        "actions": [
+            ["save", "game.json"]
+        ]
+    },
+    "exit_action": {
+        "concept_type": "player_action",
+        "action_name": "exit",
+        "actions": [
+            ["print", "Bye bye"],
+            ["exit"]
+        ]
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "start_game": {
+        "concept_type": "definition",
+        "event_subscriber": {
+            "on_game_started": {
+                "actions": [
+                    ["create_enemy"]
+                ]
+            },
+            "on_enemy_killed": {
+                "actions": [
+                    ["print", "Congratulations! You defeated ", ["get_concept", "#arg1#/name"], "!"],
+                    ["set_concept", "game/finished", true]
+                ]
+            }
+        }
+    }
+}

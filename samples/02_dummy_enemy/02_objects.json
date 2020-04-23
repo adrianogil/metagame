@@ -1,0 +1,28 @@
+{
+    "chest": {
+        "concept_type": "definition",
+        "properties": [
+            "openable"
+        ],
+        "verify_open": ["return", true],
+        "event_receiver": {
+            "on_open": {
+                "actions": [
+                    ["verify",
+                        ["run", ["get_concept", "#arg1#/verify_open"]],
+                        [
+                            ["for_each_concept", "#arg1#/contains",
+                                [
+                                    ["add_to_inventory", "#arg1#"]
+                                ]],
+                            ["remove_concept", "#arg1#/contains"]
+                        ]]
+                ]
+            }
+        },
+        "description": ["grammar", {"text": ["#main#. #secret#"],
+                                    "main": ["It's a simple chest",
+                                             "Nothing more than a chest"],
+                                    "secret": ["", "But who knows which secrets are locked here?"]}]
+    }
+}

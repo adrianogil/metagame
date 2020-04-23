@@ -7,6 +7,7 @@ import metagame.utils.printme
 
 import json
 import sys
+import ast
 
 
 class ActionParser:
@@ -19,6 +20,7 @@ class ActionParser:
         self.custom_actions = {}
         self.game = None
         self.session = PromptSession()
+        self.events = {}
 
     def add_custom_action(self, action_name, actions):
         printme("ActionParser:add_player_action - action_name: " + action_name, debug=True)
@@ -44,9 +46,13 @@ class ActionParser:
                             arg = arg.replace("#" + key + "#", parent_args[key])
                     elif parent_args.__class__ == list:
                         for index, arg_value in enumerate(parent_args):
+                            arg_index = "#arg" + str(index + 1) + "#"
                             printme("attempt to replace %s in %s with data %s " %
-                                    ("#arg" + str(index + 1) + "#", arg, arg_value), debug=True)
-                            arg = arg.replace("#arg" + str(index + 1) + "#", arg_value)
+                                    (arg_index, arg, arg_value), debug=True)
+                            if arg == arg_index:
+                                arg = arg_value
+                            else:
+                                arg = arg.replace(arg_index, arg_value)
                 printme("final arg: %s" % (arg,), debug=True)
                 new_data.append(arg)
             data = new_data
@@ -69,32 +75,22 @@ class ActionParser:
             with open(data[0], 'w') as f:
                 json.dump(self.game, f)
         elif action_name == "get_concept":
-            target_keywords = data[0].split("/")
-            current_concept = self.game
-
-            for keyword in target_keywords:
-                current_concept = current_concept[keyword]
+            current_concept = self.get_concept(data[0])
 
             printme("Returns concept %s" % (current_concept,), debug=True)
 
             return current_concept
+        elif action_name == "get_concept_list":
+            current_concept_list = self.get_concept(data[0])
 
+            if current_concept_list.__class__ == dict:
+                current_concept_list = list(current_concept_list.keys())
+
+            printme("Returns concept list %s" % (current_concept_list,), debug=True)
+
+            return current_concept_list
         elif action_name == "set_concept":
-            target_keywords = data[0].split("/")
-            target_value = data[1]
-            if len(data) > 2:
-                # concept meaning will be a list
-                target_value = data[1:]
-
-            current_concept = self.game
-
-            for keyword in target_keywords[:-1]:
-                if keyword not in current_concept:
-                    # Create a subconcept
-                    current_concept[keyword] = {}
-                current_concept = current_concept[keyword]
-
-            current_concept[target_keywords[-1]] = target_value
+            self.set_concept(data[0], data[1:])
         elif action_name == "remove_concept":
             target_keywords = data[0].split("/")
 
@@ -140,6 +136,7 @@ class ActionParser:
                 target_keywords = data[1].split("/")
 
                 for keyword in target_keywords[:-1]:
+                    printme("verify concept_exists " + str(keyword), debug=True)
                     if keyword not in current_concept:
                         # Create a subconcept
                         current_concept[keyword] = {}
@@ -172,13 +169,24 @@ class ActionParser:
             for concept in concept_list:
                 self.run_actions(data[1], [concept])
         elif action_name == "run":
-            return self.run_actions(data[0], parent_args)
+            target_actions = data[0]
+            if target_actions.__class__ == str:
+                target_actions = ast.literal_eval(target_actions)
+            return self.run_actions(target_actions, parent_args)
         elif action_name == "return":
             return data[0]
+        elif action_name == "instantiate":
+            target_concept = self.get_concept(data[0])
+            store_concept = data[1]
+
+            self.set_concept(store_concept, target_concept)
+
         elif action_name in self.custom_actions:
             self.run_actions(self.custom_actions[action_name], data)
         elif action_name == "toggle_debug":
             metagame.utils.printme.show_debug = not metagame.utils.printme.show_debug
+        else:
+            return str([action_name] + data)
 
     def run_actions(self, actions, args=None):
         if actions is None:
@@ -192,8 +200,8 @@ class ActionParser:
             return self.run_action(actions[0], actions[1:], args)
 
     def actions_matches(self, player_action, registered_action):
-        words_player_action = player_action.split(" ")
-        words_registered_action = registered_action.split(" ")
+        words_player_action = player_action.strip().split(" ")
+        words_registered_action = registered_action.strip().split(" ")
 
         if len(words_registered_action) != len(words_player_action):
             return False
@@ -203,7 +211,6 @@ class ActionParser:
             if action != register and not register.isupper():
                 printme("actions_matches: %s - %s - return False" % (action, register), debug=True)
                 return False
-
 
         printme("actions_matches: %s - %s - return True" % (player_action, registered_action), debug=True)
         return True
@@ -236,3 +243,58 @@ class ActionParser:
                 if self.actions_matches(player_action, action):
                     self.run_actions(self.player_actions[action],
                                      self.parse_actions_args(player_action, action))
+
+    def set_concept(self, concept_name, concept_value):
+        target_keywords = concept_name.split("/")
+        target_value = concept_value
+        if concept_value.__class__ == list:
+            if len(concept_value) > 2:
+                # concept meaning will be a list
+                target_value = concept_value[1:]
+            else:
+                target_value = concept_value[0]
+        else:
+            target_value = concept_value
+
+        current_concept = self.game
+
+        for keyword in target_keywords[:-1]:
+            if keyword not in current_concept:
+                # Create a subconcept
+                current_concept[keyword] = {}
+            current_concept = current_concept[keyword]
+
+        current_concept[target_keywords[-1]] = target_value
+
+    def get_concept(self, concept_name):
+        target_keywords = concept_name.split("/")
+        current_concept = self.game
+
+        for keyword in target_keywords:
+            current_concept = current_concept[keyword]
+        return current_concept
+
+    def register_event(self, event_name):
+        if event_name not in self.events:
+            self.events[event_name] = {
+                "subscribers": []
+            }
+
+    def propagate_event(self, event_name):
+        if event_name in self.events:
+            for subscriber in self.events[event_name]["subscribers"]:
+                if subscriber in self.game:
+                    subscriber_concept = self.game[subscriber]
+                    if 'event_subscriber' in subscriber_concept:
+                        if event_name in subscriber_concept["event_subscriber"]:
+                            event_response = subscriber_concept["event_subscriber"][event_name]
+                            if 'actions' in event_response:
+                                self.run_actions(event_response["actions"])
+
+    def register_event_subscriber(self, event, concept):
+        if event in self.events:
+            self.events[event]["subscribers"].append(concept)
+        else:
+            self.events[event] = {
+                "subscribers": [concept]
+            }

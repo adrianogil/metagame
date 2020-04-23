@@ -1,5 +1,5 @@
 
-show_debug = False
+show_debug = True
 
 target_buffer = {
     "game": None

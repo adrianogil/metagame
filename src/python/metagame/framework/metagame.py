@@ -4,13 +4,13 @@ from .actionparser import ActionParser
 import metagame.utils.printme as printmodule
 import json
 import copy
+import os
 
 
 class MetaGame(object):
     def __init__(self):
         self.knownledge_base = {}
         self.knownledge_base_instances = {}
-        self.events = {}
         self.action_parser = ActionParser()
         self.action_parser.game = self.knownledge_base
 
@@ -21,38 +21,13 @@ class MetaGame(object):
             ]
         }
 
-    def register_event(self, event_name):
-        if event_name not in self.events:
-            self.events[event_name] = {
-                "subscribers": []
-            }
-
-    def propagate_event(self, event_name):
-        if event_name in self.events:
-            for subscriber in self.events[event_name]["subscribers"]:
-                if subscriber in self.knownledge_base:
-                    subscriber_concept = self.knownledge_base[subscriber]
-                    if 'event_subscriber' in subscriber_concept:
-                        if event_name in subscriber_concept["event_subscriber"]:
-                            event_response = subscriber_concept["event_subscriber"][event_name]
-                            if 'actions' in event_response:
-                                self.action_parser.run_actions(event_response["actions"])
-
-    def register_event_subscriber(self, event, concept):
-        if event in self.events:
-            self.events[event]["subscribers"].append(concept)
-        else:
-            self.events[event] = {
-                "subscribers": [concept]
-            }
-
     def parse_concept(self, concept, meaning):
         printme("MetaGame:parse_concept - " + concept, debug=True)
 
         if "event_subscriber" in meaning:
             event_data = meaning["event_subscriber"]
             for event in event_data:
-                self.register_event_subscriber(event, concept)
+                self.action_parser.register_event_subscriber(event, concept)
         if "concept_type" in meaning:
             if meaning["concept_type"] == "action":
                 self.action_parser.add_custom_action(
@@ -85,9 +60,12 @@ class MetaGame(object):
                 self.parse_concept(game_concept, game_data[game_concept])
 
     def load_game(self, game_files):
+        printme("MetaGame:load_game - " + str(game_files), debug=True)
         if game_files.__class__ == list:
             for game_file in game_files:
-                self.load_game_data(game_file)
+                self.load_game(game_file)
+        elif os.path.isdir(game_files):
+            self.load_game(list(map(lambda x: os.path.join(game_files, x), sorted(os.listdir(game_files)))))
         else:
             self.load_game_data(game_files)
 
@@ -99,7 +77,7 @@ class MetaGame(object):
             self.knownledge_base["game"]["history"] = []
             printmodule.set_game_buffer(self.knownledge_base["game"])
             printme("=" * 8 + " Starting game " + "=" * 8 + "\n\n")
-            self.propagate_event("on_game_started")
+            self.action_parser.propagate_event("on_game_started")
 
         while not self.knownledge_base["game"]["finished"]:
             player_cmd = self.action_parser.run_action("get_player_command_action")
