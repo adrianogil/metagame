@@ -2,6 +2,7 @@ from metagame.utils.printme import printme
 from .grammar import SimpleGrammar
 
 from prompt_toolkit import PromptSession
+from random import randint
 
 import metagame.utils.printme
 
@@ -21,6 +22,7 @@ class ActionParser:
         self.game = None
         self.session = PromptSession()
         self.events = {}
+        self.global_vars = {}
 
     def add_custom_action(self, action_name, actions):
         printme("ActionParser:add_player_action - action_name: " + action_name, debug=True)
@@ -41,6 +43,8 @@ class ActionParser:
                    action_name != "for_each_concept") and arg.__class__ == list:
                     arg = self.run_actions(arg, parent_args)
                 if arg.__class__ == str:
+                    for global_var in self.global_vars:
+                        arg = arg.replace("#" + str(global_var) + "#", self.global_vars[global_var])
                     if parent_args.__class__ == dict:
                         for key in parent_args:
                             arg = arg.replace("#" + key + "#", parent_args[key])
@@ -51,8 +55,9 @@ class ActionParser:
                                     (arg_index, arg, arg_value), debug=True)
                             if arg == arg_index:
                                 arg = arg_value
+                                break
                             else:
-                                arg = arg.replace(arg_index, arg_value)
+                                arg = arg.replace(arg_index, str(arg_value))
                 printme("final arg: %s" % (arg,), debug=True)
                 new_data.append(arg)
             data = new_data
@@ -166,8 +171,8 @@ class ActionParser:
 
             concept_list = current_concept.copy()
 
-            for concept in concept_list:
-                self.run_actions(data[1], [concept])
+            for index, concept in enumerate(concept_list):
+                self.run_actions(data[1], [concept, index + 1])
         elif action_name == "run":
             target_actions = data[0]
             if target_actions.__class__ == str:
@@ -179,7 +184,12 @@ class ActionParser:
             target_concept = self.get_concept(data[0])
             store_concept = data[1]
 
-            self.set_concept(store_concept, target_concept)
+            new_concept_name = data[0].split("/")[-1] + ("instance_%4d" % (randint(0, 9999),))
+            new_concept = store_concept + "/" + new_concept_name
+
+            self.global_vars["LAST_INSTANTIATE_ENTITY"] = new_concept
+
+            self.set_concept(new_concept, target_concept)
 
         elif action_name in self.custom_actions:
             self.run_actions(self.custom_actions[action_name], data)

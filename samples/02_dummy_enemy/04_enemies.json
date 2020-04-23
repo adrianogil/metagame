@@ -16,6 +16,7 @@
     "create_enemy": {
         "concept_type": "action",
         "actions": [
+            ["print", "creating enemy"],
             ["instantiate", "enemy", "game/world/enemies"],
             ["set_concept", "#LAST_INSTANTIATE_ENTITY#/name",
                 ["grammar", {"text": ["#name# #surname#"],
@@ -23,5 +24,14 @@
                              "surname": ["Plastic Kobold", "Kobold Doll"]
                             }]]
         ]
+    },
+    "enemy_creation_on_game_start": {
+        "event_subscriber": {
+            "on_game_started": {
+                "actions": [
+                    ["create_enemy"]
+                ]
+            }
+        }
     }
 }
