@@ -11,6 +11,15 @@ import sys
 import ast
 
 
+def is_integer(n):
+    try:
+        float(n)
+    except ValueError:
+        return False
+    else:
+        return float(n).is_integer()
+
+
 class ActionParser:
     def __init__(self):
         self.player_actions = {
@@ -138,16 +147,10 @@ class ActionParser:
             elif data[0] == "concept_exists":
                 current_concept = self.game
 
-                target_keywords = data[1].split("/")
-
-                for keyword in target_keywords[:-1]:
-                    printme("verify concept_exists " + str(keyword), debug=True)
-                    if keyword not in current_concept:
-                        # Create a subconcept
-                        current_concept[keyword] = {}
-                    current_concept = current_concept[keyword]
-
-                verify_result = target_keywords[-1] in current_concept
+                verify_result = False
+                printme("verify - concept_exists? %s" % (data[1],), debug=True)
+                if self.get_concept(data[1], verify=True):
+                    verify_result = True
                 true_action = data[2]
                 if len(data) > 3:  # Optional argument
                     false_action = data[3]
@@ -276,12 +279,31 @@ class ActionParser:
 
         current_concept[target_keywords[-1]] = target_value
 
-    def get_concept(self, concept_name):
+    def get_concept(self, concept_name, verify=False):
         target_keywords = concept_name.split("/")
         current_concept = self.game
 
-        for keyword in target_keywords:
-            current_concept = current_concept[keyword]
+        if verify:
+            last_concept = target_keywords[-1]
+            target_keywords = target_keywords[:-1]
+
+        try:
+            for keyword in target_keywords:
+                if is_integer(keyword):
+                    keynumber = int(keyword) - 1
+                    if current_concept.__class__ == list:
+                        current_concept = current_concept[keynumber]
+                    else:
+                        keys_list = list(current_concept.keys())
+                        current_concept = current_concept[keys_list[keynumber]]
+                else:
+                    current_concept = current_concept[keyword]
+        except:
+            return False
+
+        if verify:
+            return last_concept in current_concept
+
         return current_concept
 
     def register_event(self, event_name):
