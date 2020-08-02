@@ -154,6 +154,16 @@ class ActionParser:
                 true_action = data[2]
                 if len(data) > 3:  # Optional argument
                     false_action = data[3]
+            elif data[0] == "equals":
+                # print(str(data))
+                if data[1].__class__ == list:
+                    data[1] = self.run_actions(data[1], parent_args)
+                if data[2].__class__ == list:
+                    data[2] = self.run_actions(data[2], parent_args)
+                verify_result = (data[1] == data[2])
+                true_action = data[3]
+                if len(data) > 4:  # Optional argument
+                    false_action = data[4]
 
             if verify_result:
                 printme("verify - running true action", debug=True)
