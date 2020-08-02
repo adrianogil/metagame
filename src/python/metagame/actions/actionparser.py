@@ -311,6 +311,13 @@ class ActionParser:
         if verify:
             if current_concept is None:
                 return False
+            if is_integer(last_concept):
+                keynumber = int(last_concept) - 1
+                if current_concept.__class__ == list:
+                    return current_concept[keynumber]
+                else:
+                    keys_list = list(current_concept.keys())
+                    return current_concept[keys_list[keynumber]]
             return last_concept in current_concept
 
         return current_concept
