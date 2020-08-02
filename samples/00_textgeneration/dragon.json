@@ -9,7 +9,7 @@
                         "mood": ["wrathful", "peaceful", "sleepy"]
                     }]],
                     ["describe_world"],
-                    ["dragon_action"],
+                    ["print", "#dragon/mood#"],
                     ["exit"]
                 ]
             }
@@ -21,15 +21,16 @@
             ["print", "Once upon a time, in a far way reign there was a castle and a ", ["get_concept", "dragon/mood"], " dragon."]
         ]
     },
-    "dragon_action": {
-        "concept_type": "action",
-        "actions": [
-            ["verify", "equals", ["get_concept", "dragon/mood"], "wrathful",
-                ["print", "And then the dragon destroyed the castle."],
-                ["verify", "equals", ["get_concept", "dragon/mood"], "peaceful",
-                    ["print", "And then the dragon looks for flowers."],
-                    ["verify", "equals", ["get_concept", "dragon/mood"], "sleepy",
-                        ["print", "And the dragon went back to sleep."]]]]
+    "dragon": {
+        "concept_type": "definition",
+        "wrathful_action": [
+            ["print", "And then the dragon destroyed the castle."]
+        ],
+        "peaceful_action": [
+            ["print", "And then the dragon looks for flowers."]
+        ],
+        "sleepy_action": [
+            ["print", "And the dragon went back to sleep."]
         ]
     }
 }

@@ -67,6 +67,8 @@ class ActionParser:
                                 break
                             else:
                                 arg = arg.replace(arg_index, str(arg_value))
+                    elif "#" in arg:
+                        arg = self.parse_concept_inside_string(arg)
                 printme("final arg: %s" % (arg,), debug=True)
                 new_data.append(arg)
             data = new_data
@@ -266,6 +268,29 @@ class ActionParser:
                 if self.actions_matches(player_action, action):
                     self.run_actions(self.player_actions[action],
                                      self.parse_actions_args(player_action, action))
+
+    def parse_concept_inside_string(self, arg):
+        target_concepts = []
+
+        current_concept = ""
+        inside_concept = False
+
+        for s in arg:
+            if not inside_concept:
+                if current_concept == "" and s == '#':
+                    inside_concept = True
+            else:
+                if s == '#':
+                    target_concepts.append(current_concept)
+                    current_concept = ""
+                    inside_concept = False
+                else:
+                    current_concept += s
+
+        for concept in target_concepts:
+            arg = arg.replace("#" + concept + "#", self.get_concept(concept))
+
+        return arg
 
     def set_concept(self, concept_name, concept_value):
         target_keywords = concept_name.split("/")
