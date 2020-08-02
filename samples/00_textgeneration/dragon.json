@@ -1,33 +1,22 @@
 {
-    "start_game": {
-        "concept_type": "definition",
-        "event_subscriber": {
-            "on_game_started": {
-                "actions": [
-                    ["set_concept", "dragon/mood", ["grammar", {
-                        "text": ["#mood#"],
-                        "mood": ["wrathful", "peaceful", "sleepy"]
-                    }]],
-                    ["describe_world"],
-                    ["dragon/#dragon/mood#_action"],
-                    ["exit"]
-                ]
-            }
-        }
-    },
-    "describe_world": {
-        "concept_type": "action",
-        "actions": [
-            ["print", "Once upon a time, in a far way reign there was a castle and a ", ["get_concept", "dragon/mood"], " dragon."]
-        ]
-    },
+    "on_game_started": [
+        ["set_concept", "dragon/mood", ["grammar", {
+            "text": ["#mood#"],
+            "mood": ["wrathful", "peaceful", "sleepy"]
+        }]],
+        ["describe_world"],
+        ["dragon/#dragon/mood#_action"],
+        ["exit"]
+    ],
+    "describe_world": [
+        ["print", "Once upon a time, in a far way reign there was a castle and a ", ["get_concept", "dragon/mood"], " dragon."]
+    ],
     "dragon": {
-        "concept_type": "definition",
         "wrathful_action": [
             ["print", "And then the dragon destroyed the castle."]
         ],
         "peaceful_action": [
-            ["print", "And then the dragon looks for flowers."]
+            ["print", "And there is a peaceful dragon looking for flowers on mountains."]
         ],
         "sleepy_action": [
             ["print", "And the dragon went back to sleep."]

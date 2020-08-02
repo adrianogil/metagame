@@ -354,6 +354,8 @@ class ActionParser:
             }
 
     def propagate_event(self, event_name):
+        if event_name in self.game:
+            self.run_actions(self.game[event_name])
         if event_name in self.events:
             for subscriber in self.events[event_name]["subscribers"]:
                 if subscriber in self.game:

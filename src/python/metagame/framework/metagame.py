@@ -50,6 +50,8 @@ class MetaGame(object):
                     new_meaning[subconcept] = meaning[subconcept]
                 new_meaning["concept_type"] = "definition"
                 meaning = new_meaning
+        elif meaning.__class__ == dict:
+            meaning["concept_type"] = "definition"
         self.knownledge_base[concept] = meaning
 
     def load_game_data(self, game_file_data):
