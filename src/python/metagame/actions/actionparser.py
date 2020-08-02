@@ -2,6 +2,7 @@ from metagame.framework.grammar import SimpleGrammar
 from metagame.utils.printme import printme
 
 from .verifyaction import run_verify_action
+from .loopaction import run_foreach_action
 
 import metagame.utils.printme
 
@@ -35,6 +36,11 @@ class ActionParser:
         self.session = PromptSession()
         self.events = {}
         self.global_vars = {}
+
+        self.action_parsers = {
+            "verify": run_verify_action,
+            "for_each_concept": run_foreach_action
+        }
 
     def add_custom_action(self, action_name, actions):
         printme("ActionParser:add_player_action - action_name: " + action_name, debug=True)
@@ -138,23 +144,6 @@ class ActionParser:
             printme("grammar generated text: %s" % (text,), debug=True)
 
             return text
-        elif action_name == "verify":
-            return run_verify_action(self, data, parent_args)
-        elif action_name == "for_each_concept":
-            current_concept = self.game
-
-            target_keywords = data[0].split("/")
-
-            for keyword in target_keywords:
-                if keyword not in current_concept:
-                    # Create a subconcept
-                    current_concept[keyword] = {}
-                current_concept = current_concept[keyword]
-
-            concept_list = current_concept.copy()
-
-            for index, concept in enumerate(concept_list):
-                self.run_actions(data[1], [concept, index + 1])
         elif action_name == "run":
             target_actions = data[0]
             if target_actions.__class__ == str:
@@ -177,6 +166,8 @@ class ActionParser:
             self.run_actions(self.custom_actions[action_name], data)
         elif action_name == "toggle_debug":
             metagame.utils.printme.show_debug = not metagame.utils.printme.show_debug
+        elif action_name in self.action_parsers:
+            return self.action_parsers[action_name](self, data, parent_args)
         else:
             if "#" in action_name:
                 action_name = self.parse_concept_inside_string(action_name)
