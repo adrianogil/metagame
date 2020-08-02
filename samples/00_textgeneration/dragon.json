@@ -9,7 +9,7 @@
                         "mood": ["wrathful", "peaceful", "sleepy"]
                     }]],
                     ["describe_world"],
-                    ["print", "#dragon/mood#"],
+                    ["dragon/#dragon/mood#_action"],
                     ["exit"]
                 ]
             }

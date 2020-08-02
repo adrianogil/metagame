@@ -211,7 +211,13 @@ class ActionParser:
         elif action_name == "toggle_debug":
             metagame.utils.printme.show_debug = not metagame.utils.printme.show_debug
         else:
-            return str([action_name] + data)
+            if "#" in action_name:
+                action_name = self.parse_concept_inside_string(action_name)
+            possible_concept = self.get_concept(action_name)
+            if possible_concept and possible_concept.__class__ == list:
+                return self.run_actions(possible_concept, parent_args)
+            else:
+                return str([action_name] + data)
 
     def run_actions(self, actions, args=None):
         if actions is None:
