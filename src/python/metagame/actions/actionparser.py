@@ -1,10 +1,13 @@
+from metagame.framework.grammar import SimpleGrammar
 from metagame.utils.printme import printme
-from .grammar import SimpleGrammar
+
+from .verifyaction import run_verify_action
+
+import metagame.utils.printme
 
 from prompt_toolkit import PromptSession
 from random import randint
 
-import metagame.utils.printme
 
 import json
 import sys
@@ -136,43 +139,7 @@ class ActionParser:
 
             return text
         elif action_name == "verify":
-            verify_result = True
-
-            true_action = None
-            false_action = None
-
-            if data[0].__class__ == list:
-                verify_result = self.run_actions(data[0], parent_args)
-                true_action = data[1]
-                if len(data) > 2:  # Optional argument
-                    false_action = data[2]
-            elif data[0] == "concept_exists":
-                current_concept = self.game
-
-                verify_result = False
-                printme("verify - concept_exists? %s" % (data[1],), debug=True)
-                if self.get_concept(data[1], verify=True):
-                    verify_result = True
-                true_action = data[2]
-                if len(data) > 3:  # Optional argument
-                    false_action = data[3]
-            elif data[0] == "equals":
-                # print(str(data))
-                if data[1].__class__ == list:
-                    data[1] = self.run_actions(data[1], parent_args)
-                if data[2].__class__ == list:
-                    data[2] = self.run_actions(data[2], parent_args)
-                verify_result = (data[1] == data[2])
-                true_action = data[3]
-                if len(data) > 4:  # Optional argument
-                    false_action = data[4]
-
-            if verify_result:
-                printme("verify - running true action", debug=True)
-                return self.run_actions(true_action, parent_args)
-            else:
-                printme("verify - running false action", debug=True)
-                return self.run_actions(false_action, parent_args)
+            return run_verify_action(self, data, parent_args)
         elif action_name == "for_each_concept":
             current_concept = self.game
 

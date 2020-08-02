@@ -1,5 +1,5 @@
 from metagame.utils.printme import printme
-from .actionparser import ActionParser
+from metagame.actions.actionparser import ActionParser
 
 import metagame.utils.printme as printmodule
 import json
