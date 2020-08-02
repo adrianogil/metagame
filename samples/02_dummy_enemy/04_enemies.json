@@ -22,7 +22,9 @@
                 ["grammar", {"text": ["#name# #surname#"],
                              "name": ["Dummy", "Special"],
                              "surname": ["Plastic Kobold", "Kobold Doll"]
-                            }]]
+                            }]],
+            ["set_concept", "#LAST_INSTANTIATE_ENTITY#/description",
+                ["grammar", {"text": ["An ugly monster"]}]]
         ]
     },
     "enemy_creation_on_game_start": {

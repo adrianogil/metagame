@@ -22,7 +22,17 @@
         "concept_type": "player_action",
         "action_name": ["look OBJECT", "look at OBJECT"],
         "actions": [
-            ["print", ["get_concept", "game/world/objects/#OBJECT#_object/description"]]
+            ["set_concept", "current_object_looking_at",
+                ["search_for_concept", {
+                                        "root": "game/world",
+                                        "has_property": "name",
+                                        "property_value_contains": "#OBJECT#"
+                                      }]
+            ],
+            ["verify", "concept_exists", "current_object_looking_at/name",
+                ["print", "You are looking to #current_object_looking_at/name#. #current_object_looking_at/description#"],
+                ["print", "Nothing to look"]],
+            ["set_concept", "current_object_looking_at", {}]
         ]
     },
     "attempt_to_pick": {

@@ -1,6 +1,7 @@
 from metagame.framework.grammar import SimpleGrammar
 from metagame.utils.printme import printme
 
+from .searchaction import run_search_for_concept_action
 from .verifyaction import run_verify_action
 from .loopaction import run_foreach_action
 
@@ -39,7 +40,8 @@ class ActionParser:
 
         self.action_parsers = {
             "verify": run_verify_action,
-            "for_each_concept": run_foreach_action
+            "for_each_concept": run_foreach_action,
+            "search_for_concept": run_search_for_concept_action
         }
 
     def add_custom_action(self, action_name, actions):
@@ -50,6 +52,31 @@ class ActionParser:
         printme("ActionParser:add_player_action - action_name: " + action_name, debug=True)
         self.player_actions[action_name] = actions
 
+    def parse_contextual_arg(self, arg, action_name, parent_args):
+
+        if (action_name != "verify" and action_name != "for_each_concept") and arg.__class__ == list:
+            arg = self.run_actions(arg, parent_args)
+
+        if arg.__class__ == str:
+            for global_var in self.global_vars:
+                arg = arg.replace("#" + str(global_var) + "#", self.global_vars[global_var])
+            if parent_args.__class__ == dict:
+                for key in parent_args:
+                    arg = arg.replace("#" + key + "#", parent_args[key])
+            elif parent_args.__class__ == list:
+                for index, arg_value in enumerate(parent_args):
+                    arg_index = "#arg" + str(index + 1) + "#"
+                    printme("attempt to replace %s in %s with data %s " %
+                            (arg_index, arg, arg_value), debug=True)
+                    if arg == arg_index:
+                        arg = arg_value
+                        break
+                    else:
+                        arg = arg.replace(arg_index, str(arg_value))
+            if arg.__class__ == str and "#" in arg:
+                arg = self.parse_concept_inside_string(arg)
+        return arg
+
     def run_action(self, action_name, data=None, parent_args=None):
         printme("running action: %s with data %s and parent args: %s" %
                 (action_name, data, parent_args), debug=True)
@@ -57,27 +84,7 @@ class ActionParser:
         if data is not None:
             new_data = []
             for arg in data:
-                if (action_name != "verify" and
-                   action_name != "for_each_concept") and arg.__class__ == list:
-                    arg = self.run_actions(arg, parent_args)
-                if arg.__class__ == str:
-                    for global_var in self.global_vars:
-                        arg = arg.replace("#" + str(global_var) + "#", self.global_vars[global_var])
-                    if parent_args.__class__ == dict:
-                        for key in parent_args:
-                            arg = arg.replace("#" + key + "#", parent_args[key])
-                    elif parent_args.__class__ == list:
-                        for index, arg_value in enumerate(parent_args):
-                            arg_index = "#arg" + str(index + 1) + "#"
-                            printme("attempt to replace %s in %s with data %s " %
-                                    (arg_index, arg, arg_value), debug=True)
-                            if arg == arg_index:
-                                arg = arg_value
-                                break
-                            else:
-                                arg = arg.replace(arg_index, str(arg_value))
-                    elif "#" in arg:
-                        arg = self.parse_concept_inside_string(arg)
+                arg = self.parse_contextual_arg(arg, action_name, parent_args)
                 printme("final arg: %s" % (arg,), debug=True)
                 new_data.append(arg)
             data = new_data
@@ -252,7 +259,8 @@ class ActionParser:
                     current_concept += s
 
         for concept in target_concepts:
-            arg = arg.replace("#" + concept + "#", self.get_concept(concept))
+            printme("attempt to replace concept inside string: %s" % (concept,), debug=True)
+            arg = arg.replace("#" + concept + "#", str(self.get_concept(concept)))
 
         return arg
 
@@ -301,6 +309,8 @@ class ActionParser:
             return False
 
         if verify:
+            if current_concept is None:
+                return False
             return last_concept in current_concept
 
         return current_concept

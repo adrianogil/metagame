@@ -24,7 +24,7 @@
         "concept_type": "player_action",
         "action_name": ["attack ENEMY_NUMBER"],
         "actions": [
-            ["verify", "concept_exists", "game/world/enemies/#ENEMY_NUMBER#"]
+            ["verify", "concept_exists", "game/world/enemies/#ENEMY_NUMBER#"],
             ["print", "you are trying to attack ", ["get_concept", "game/world/enemies/#ENEMY_NUMBER#/name"]]
         ]
     }
