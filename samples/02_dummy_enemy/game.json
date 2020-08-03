@@ -4,7 +4,7 @@
         "event_subscriber": {
             "on_enemy_killed": {
                 "actions": [
-                    ["print", "Congratulations! You defeated ", ["get_concept", "#arg1#/name"], "!"],
+                    ["print", "Congratulations! You defeated #last_defeated_enemy/name#!"],
                     ["set_concept", "game/finished", true]
                 ]
             }

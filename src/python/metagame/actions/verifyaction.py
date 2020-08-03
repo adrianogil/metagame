@@ -30,6 +30,17 @@ def run_verify_action(action_parser, data, parent_args):
         true_action = data[3]
         if len(data) > 4:  # Optional argument
             false_action = data[4]
+    elif data[0] == 'less_or_equal_than':
+        if data[1].__class__ == list:
+            data[1] = action_parser.run_actions(data[1], parent_args)
+            data[1] = action_parser.parse_contextual_arg(data[1], '', parent_args)
+        if data[2].__class__ == list:
+            data[2] = action_parser.run_actions(data[2], parent_args)
+            data[2] = action_parser.parse_contextual_arg(data[2], '', parent_args)
+        verify_result = (int(data[1]) <= int(data[2]))
+        true_action = data[3]
+        if len(data) > 4:  # Optional argument
+            false_action = data[4]
 
     if verify_result:
         printme("verify - running true action", debug=True)

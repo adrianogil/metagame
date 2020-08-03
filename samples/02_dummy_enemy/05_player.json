@@ -25,7 +25,8 @@
         "action_name": ["attack ENEMY_NUMBER"],
         "actions": [
             ["verify", "concept_exists", "game/world/enemies/#ENEMY_NUMBER#", [
-                ["print", "you are trying to attack ", ["get_concept", "game/world/enemies/#ENEMY_NUMBER#/name"]]
+                ["print", "you attacked ", ["get_concept", "game/world/enemies/#ENEMY_NUMBER#/name"]],
+                ["game/world/enemies/#ENEMY_NUMBER#/receive_damage_action", "#player/stats/strength#"]
             ]]
         ]
     }

@@ -4,14 +4,24 @@
             "damageable"
         ],
         "health": {
-            "max": 10,
-            "current": 10
+            "max": 30,
+            "current": 30
         }
     },
     "enemy": {
         "concept_type": "instance",
         "instanceof": "damageable_entity",
-        "name": "enemy"
+        "name": "enemy",
+        "receive_damage_action": [
+            ["set_concept", "#SELF#/health/current", ["calc", "##SELF#/health/current# - #arg1#"]],
+            ["print", "Enemy received ", "#arg1#", " points of damage"],
+            ["verify", "less_or_equal_than", "##SELF#/health/current#", 0,
+                [
+                    ["set_concept", "last_defeated_enemy", ["get_concept", "#SELF#"]],
+                    ["print", "\n##SELF#/name# is dead!\n"],
+                    ["propagate_event", "on_enemy_killed"]
+                ]]
+        ]
     },
     "create_enemy": {
         "concept_type": "action",

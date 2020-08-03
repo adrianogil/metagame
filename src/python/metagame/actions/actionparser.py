@@ -1,9 +1,11 @@
 from metagame.framework.grammar import SimpleGrammar
 from metagame.utils.printme import printme
+from metagame.utils.numbers import is_integer
 
 from .searchaction import run_search_for_concept_action
 from .verifyaction import run_verify_action
 from .loopaction import run_foreach_action
+from .calcaction import run_calc_action
 
 import metagame.utils.printme
 
@@ -14,15 +16,6 @@ from random import randint
 import json
 import sys
 import ast
-
-
-def is_integer(n):
-    try:
-        float(n)
-    except ValueError:
-        return False
-    else:
-        return float(n).is_integer()
 
 
 class ActionParser:
@@ -41,7 +34,8 @@ class ActionParser:
         self.action_parsers = {
             "verify": run_verify_action,
             "for_each_concept": run_foreach_action,
-            "search_for_concept": run_search_for_concept_action
+            "search_for_concept": run_search_for_concept_action,
+            "calc": run_calc_action
         }
 
     def add_custom_action(self, action_name, actions):
@@ -59,7 +53,7 @@ class ActionParser:
 
         if arg.__class__ == str:
             for global_var in self.global_vars:
-                arg = arg.replace("#" + str(global_var) + "#", self.global_vars[global_var])
+                arg = arg.replace("#" + str(global_var) + "#", str(self.global_vars[global_var]))
             if parent_args.__class__ == dict:
                 for key in parent_args:
                     arg = arg.replace("#" + key + "#", parent_args[key])
@@ -169,6 +163,8 @@ class ActionParser:
 
             self.set_concept(new_concept, target_concept)
 
+        elif action_name == "propagate_event":
+            self.propagate_event(data[0])
         elif action_name in self.custom_actions:
             self.run_actions(self.custom_actions[action_name], data)
         elif action_name == "toggle_debug":
@@ -177,10 +173,18 @@ class ActionParser:
             return self.action_parsers[action_name](self, data, parent_args)
         else:
             if "#" in action_name:
-                action_name = self.parse_concept_inside_string(action_name)
+                action_name = self.parse_contextual_arg(action_name, "", parent_args)
             possible_concept = self.get_concept(action_name)
             if possible_concept and possible_concept.__class__ == list:
-                return self.run_actions(possible_concept, parent_args)
+                concept_path = action_name.strip().split("/")
+                if len(concept_path) > 1:
+                    concept_path = concept_path[:-1]
+                    root_concept = "/".join(concept_path)
+                    printme("root concept: " + str(root_concept), debug=True)
+                    self.global_vars["SELF"] = root_concept
+                action_value = self.run_actions(possible_concept, data)
+                self.global_vars["SELF"] = None
+                return action_value
             else:
                 return str([action_name] + data)
 
@@ -279,10 +283,18 @@ class ActionParser:
         current_concept = self.game
 
         for keyword in target_keywords[:-1]:
-            if keyword not in current_concept:
-                # Create a subconcept
-                current_concept[keyword] = {}
-            current_concept = current_concept[keyword]
+            if is_integer(keyword):
+                keynumber = int(keyword) - 1
+                if current_concept.__class__ == list:
+                    current_concept = current_concept[keynumber]
+                else:
+                    keys_list = list(current_concept.keys())
+                    current_concept = current_concept[keys_list[keynumber]]
+            else:
+                if keyword not in current_concept:
+                    # Create a subconcept
+                    current_concept[keyword] = {}
+                current_concept = current_concept[keyword]
 
         current_concept[target_keywords[-1]] = target_value
 
