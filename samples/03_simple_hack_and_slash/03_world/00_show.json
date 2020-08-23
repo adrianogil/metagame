@@ -15,5 +15,12 @@
                 ["print", "You are alone"]
             ]
         ]
+    },
+    "look_action": {
+        "concept_type": "player_action",
+        "action_name": "look",
+        "actions": [
+            ["show_world"]
+        ]
     }
 }

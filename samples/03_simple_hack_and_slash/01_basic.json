@@ -15,13 +15,6 @@
             ["run", ["get_concept", "#arg1#/event_receiver/on_#arg2#/actions"]]
         ]
     },
-    "look_action": {
-        "concept_type": "player_action",
-        "action_name": "look",
-        "actions": [
-            ["show_world"]
-        ]
-    },
     "look_object_action": {
         "concept_type": "player_action",
         "action_name": ["look OBJECT", "look at OBJECT"],
