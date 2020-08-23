@@ -1,0 +1,13 @@
+{
+    "game_win_condition": {
+        "concept_type": "definition",
+        "event_subscriber": {
+            "on_enemy_killed": {
+                "actions": [
+                    ["print", "Congratulations! You defeated #last_defeated_enemy/name#!"],
+                    ["set_concept", "game/finished", true]
+                ]
+            }
+        }
+    }
+}

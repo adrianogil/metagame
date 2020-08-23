@@ -1,0 +1,33 @@
+{
+    "player": {
+        "stats": {
+            "strength": 10
+        }
+    },
+    "inventory_action": {
+        "concept_type": "player_action",
+        "action_name": ["inventory", "i"],
+        "actions": [
+            ["print", "In you inventory, you can find:"],
+            ["for_each_concept", "game/player/inventory",
+                ["print", "- ", ["get_concept", "game/player/inventory/#arg1#/object_name"]]]
+        ]
+    },
+    "add_to_inventory": {
+        "concept_type": "action",
+        "actions": [
+            ["set_concept", "game/player/inventory/#arg1#_object", ["get_concept", "#arg1#_object"]],
+            ["print", "You added ", ["get_concept", "game/player/inventory/#arg1#_object/object_name"], " to your inventory"]
+        ]
+    },
+    "attack_action": {
+        "concept_type": "player_action",
+        "action_name": ["attack ENEMY_NUMBER"],
+        "actions": [
+            ["verify", "concept_exists", "game/world/enemies/#ENEMY_NUMBER#", [
+                ["print", "you attacked ", ["get_concept", "game/world/enemies/#ENEMY_NUMBER#/name"]],
+                ["game/world/enemies/#ENEMY_NUMBER#/receive_damage_action", "#player/stats/strength#"]
+            ]]
+        ]
+    }
+}

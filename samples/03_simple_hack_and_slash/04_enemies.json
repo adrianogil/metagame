@@ -1,0 +1,49 @@
+{
+    "damageable_entity": {
+        "properties": [
+            "damageable"
+        ],
+        "health": {
+            "max": 30,
+            "current": 30
+        }
+    },
+    "enemy": {
+        "concept_type": "instance",
+        "instanceof": "damageable_entity",
+        "name": "enemy",
+        "receive_damage_action": [
+            ["set_concept", "#SELF#/health/current", ["calc", "##SELF#/health/current# - #arg1#"]],
+            ["print", "Enemy received ", "#arg1#", " points of damage"],
+            ["verify", "less_or_equal_than", "##SELF#/health/current#", 0,
+                [
+                    ["set_concept", "last_defeated_enemy", ["get_concept", "#SELF#"]],
+                    ["print", "\n##SELF#/name# is dead!\n"],
+                    ["propagate_event", "on_enemy_killed"]
+                ]]
+        ]
+    },
+    "create_enemy": {
+        "concept_type": "action",
+        "actions": [
+            ["print", "creating enemy"],
+            ["instantiate", "enemy", "game/world/enemies"],
+            ["set_concept", "#LAST_INSTANTIATE_ENTITY#/name",
+                ["grammar", {"text": ["#name# #surname#"],
+                             "name": ["Dummy", "Special"],
+                             "surname": ["Plastic Kobold", "Kobold Doll"]
+                            }]],
+            ["set_concept", "#LAST_INSTANTIATE_ENTITY#/description",
+                ["grammar", {"text": ["An ugly monster"]}]]
+        ]
+    },
+    "enemy_creation_on_game_start": {
+        "event_subscriber": {
+            "on_game_started": {
+                "actions": [
+                    ["create_enemy"]
+                ]
+            }
+        }
+    }
+}

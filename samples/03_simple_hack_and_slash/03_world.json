@@ -1,0 +1,19 @@
+{
+    "show_world": {
+        "concept_type": "action",
+        "actions": [
+            ["print", ["grammar", {
+                                    "text": ["#world_description#"],
+                                    "world_description" :["You are inside a dimly lit room."]
+                                   }]],
+            ["verify", "concept_exists", "game/world/enemies",
+                [
+                    ["print", "There are some creatures with you:"],
+                    ["for_each_concept", "game/world/enemies",
+                        ["print", " ", "#arg2#", ") ", ["get_concept", "game/world/enemies/#arg1#/name"]]]
+                ],
+                ["print", "You are alone"]
+            ]
+        ]
+    }
+}
