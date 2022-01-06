@@ -28,12 +28,15 @@ class MetaGame(object):
             event_data = meaning["event_subscriber"]
             for event in event_data:
                 self.action_parser.register_event_subscriber(event, concept)
+
         if "concept_type" in meaning:
             if meaning["concept_type"] == "action":
+                # Register new general action (used by the game)
                 self.action_parser.add_custom_action(
                     concept,
                     meaning["actions"])
             elif meaning["concept_type"] == "player_action":
+                # Register new player action (used by the player)
                 if meaning["action_name"].__class__ == list:
                     for player_action in meaning["action_name"]:
                         self.action_parser.add_player_action(
@@ -55,6 +58,19 @@ class MetaGame(object):
         self.knownledge_base[concept] = meaning
 
     def load_game_data(self, game_file_data):
+        printme('[python.metagame.framework.metagame] MetaGame:load_game_data -' + ' game_file_data - ' + str(game_file_data), debug=True)
+        if '.pyc' in game_file_data:
+            return
+        if game_file_data.endswith('.py'):
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("module.name", game_file_data)
+            foo = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(foo)
+            foo.setup_game(self)
+        else:
+            self.load_game_data_json(game_file_data)
+
+    def load_game_data_json(self, game_file_data):
         with open(game_file_data, 'r') as f:
             game_data = json.load(f)
 
@@ -85,6 +101,17 @@ class MetaGame(object):
             player_cmd = self.action_parser.run_action("get_player_command_action")
             printme(">> %s" % (player_cmd,), only_history=True)
             self.action_parser.run_player_action(player_cmd)
+
+    def set_concept(self, concept, data):
+        self.action_parser.run_action("set_concept", [concept, data])
+
+    def print(self, data):
+        self.action_parser.run_action("print", data)
+
+    def run_action(self, action_name, data=None):
+        if not data:
+            data = []
+        self.action_parser.run_action(action_name, data)
 
 
 def main_game():

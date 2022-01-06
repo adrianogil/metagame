@@ -71,6 +71,18 @@ class ActionParser:
                 arg = self.parse_concept_inside_string(arg)
         return arg
 
+    def run_print_action(self, data, parent_args=None):
+        print_msg = ""
+
+        for print_arg in data:
+            msg = print_arg
+            if msg.__class__ == list:
+                msg = self.run_action(msg[0], msg[1:], parent_args)
+                print(msg)
+            print_msg += str(msg)
+
+        printme(print_msg)
+
     def run_action(self, action_name, data=None, parent_args=None):
         printme("running action: %s with data %s and parent args: %s" %
                 (action_name, data, parent_args), debug=True)
