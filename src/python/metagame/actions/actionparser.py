@@ -12,7 +12,7 @@ import metagame.utils.printme
 from prompt_toolkit import PromptSession
 from random import randint
 
-
+import types
 import json
 import sys
 import ast
@@ -69,6 +69,10 @@ class ActionParser:
                         arg = arg.replace(arg_index, str(arg_value))
             if arg.__class__ == str and "#" in arg:
                 arg = self.parse_concept_inside_string(arg)
+
+                # In case there is nested concepts (i.e. a concept that refers to another concept)
+                if '#' in arg:
+                    arg = self.parse_concept_inside_string(arg)
         return arg
 
     def run_print_action(self, data, parent_args=None):
@@ -197,6 +201,8 @@ class ActionParser:
                 action_value = self.run_actions(possible_concept, data)
                 self.global_vars["SELF"] = None
                 return action_value
+            elif isinstance(possible_concept, (types.FunctionType, types.BuiltinFunctionType, types.MethodType, types.BuiltinMethodType)):
+                return possible_concept(data, parent_args)
             else:
                 return str([action_name] + data)
 
@@ -276,7 +282,10 @@ class ActionParser:
 
         for concept in target_concepts:
             printme("attempt to replace concept inside string: %s" % (concept,), debug=True)
-            arg = arg.replace("#" + concept + "#", str(self.get_concept(concept)))
+            concept_meaning = self.get_concept(concept)
+            if concept_meaning.__class__ == list:
+                concept_meaning = self.run_action(concept_meaning[0], concept_meaning[1:])
+            arg = arg.replace("#" + concept + "#", str(concept_meaning))
 
         return arg
 

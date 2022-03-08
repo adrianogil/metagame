@@ -105,6 +105,9 @@ class MetaGame(object):
     def set_concept(self, concept, data):
         self.action_parser.run_action("set_concept", [concept, data])
 
+    def get_concept(self, concept):
+        return self.action_parser.get_concept(concept)
+
     def print(self, data):
         self.action_parser.run_action("print", data)
 
