@@ -11,7 +11,6 @@ def define_world(metagame):
 	}
 	metagame.parse_concept("dragon", dragon_category_concept)
 	smaug_dragon_concept = {
-		"concept_type": "instance",
 		"name": "Smaug",
 		"instanceof": "dragon"
 	}
