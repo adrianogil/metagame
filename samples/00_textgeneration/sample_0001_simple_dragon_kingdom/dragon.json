@@ -2,7 +2,7 @@
     "on_game_started": [
         ["set_concept", "dragon/mood", ["grammar", {
             "text": ["#mood#"],
-            "mood": ["wrathful", "peaceful", "sleepy"]
+            "mood": ["wrathful", "peaceful", "sleepy", "fearful",  "happy",  "sad",  "angry"]
         }]],
         ["describe_world"],
         ["dragon/#dragon/mood#_action"],
@@ -20,6 +20,18 @@
         ],
         "sleepy_action": [
             ["print", "And the dragon went back to sleep."]
+        ],
+        "fearful_action": [
+            ["print", "And the dragon let out a terrifying roar, striking fear into the hearts of all who heard it."]
+        ],
+        "happy_action": [
+            ["print", "And the dragon frolicked in a meadow."]
+        ],
+        "sad_action": [
+            ["print", "And the dragon wept tears of sorrow."]
+        ],
+        "angry_action": [
+            ["print", "And the dragon breathed fire in anger."]
         ]
     }
 }
