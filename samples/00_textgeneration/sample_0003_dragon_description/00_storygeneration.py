@@ -55,42 +55,7 @@ def describe_object(object_concept, description_method='categorically_concise'):
 
 
 def define_world(metagame):
-	dragon_category_concept = {
-		"category_name": "dragon"
-	}
-	metagame.parse_concept("dragon", dragon_category_concept)
-	smaug_dragon_concept = {
-		"name": "Smaug",
-		"instanceof": "dragon",
-		"attributes": {
-			"wings": {
-				"color": "dark red"
-			},
-			"color": "black",
-			"size": "colossal"
-		},
-		"pronouns": [
-			"it", "its"
-		]
-	}
-	metagame.parse_concept("Smaug_the_dragon", smaug_dragon_concept)
-
-	knight_category_concept = {
-		"category_name": "knight"
-	}
-	metagame.parse_concept("knight", knight_category_concept)
-	scarlet_knight_concept = {
-		"name": "Dora",
-		"instanceof": "knight",
-		"attributes": {
-			"color": "blonde",
-			"size": "meddium-sized"
-		},
-		"pronouns": [
-			"She", "her"
-		]
-	}
-	metagame.parse_concept("Dora_knight", scarlet_knight_concept)
+	pass
 
 
 def describe_world(metagame):

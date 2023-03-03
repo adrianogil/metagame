@@ -1,3 +1,33 @@
 {
-	
+	"dragon": {
+		"category_name": "dragon"
+	},
+	"knight": {
+		"category_name": "knight"
+	},
+	"Smaug_the_dragon": {
+		"name": "Smaug",
+		"instanceof": "dragon",
+		"attributes": {
+			"wings": {
+				"color": "dark red"
+			},
+			"color": "black",
+			"size": "colossal"
+		},
+		"pronouns": [
+			"it", "its"
+		]
+	},
+	"Dora_knight": {
+		"name": "Dora",
+		"instanceof": "knight",
+		"attributes": {
+			"color": "blonde",
+			"size": "meddium-sized"
+		},
+		"pronouns": [
+			"She", "her"
+		]
+	}
 }
