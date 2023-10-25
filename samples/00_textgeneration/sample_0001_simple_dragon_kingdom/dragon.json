@@ -2,7 +2,21 @@
     "on_game_started": [
         ["set_concept", "dragon/mood", ["grammar", {
             "text": ["#mood#"],
-            "mood": ["wrathful", "peaceful", "sleepy", "fearful",  "happy",  "sad",  "angry"]
+            "mood": [
+                "wrathful", 
+                "peaceful", 
+                "sleepy", 
+                "fearful",  
+                "happy", 
+                "sad",  
+                "angry",
+                "serene",
+                "drowsy",
+                "timid",
+                "joyful",
+                "melancholic",
+                "irate"
+            ]
         }]],
         ["describe_world"],
         ["dragon/#dragon/mood#_action"],
@@ -32,6 +46,24 @@
         ],
         "angry_action": [
             ["print", "And the dragon breathed fire in anger."]
+        ],
+        "serene_action": [
+            ["print", "The serene dragon, with an air of tranquility, wandered the mountains, searching for rare and delicate flowers."]
+        ],
+        "drowsy_action": [
+            ["print", "The drowsy dragon yawned, stretching its colossal wings, before nestling into its lair for a deep slumber."]
+        ],
+        "timid_action": [
+            ["print", "The timid dragon, with a soft whimper, hid behind the rocks, its eyes darting anxiously at every shadow."]
+        ],
+        "joyful_action": [
+            ["print", "With a heart light as a feather, the joyful dragon danced and soared, its laughter echoing across the valleys."]
+        ],
+        "melancholic_action": [
+            ["print", "With a heavy heart, the melancholic dragon gazed at the horizon, shedding tears that turned into shimmering crystals on the ground."]
+        ],
+        "irate_action": [
+            ["print", "The irate dragon, with a thunderous roar, spewed flames skyward, its anger setting the heavens alight."]
         ]
     }
 }

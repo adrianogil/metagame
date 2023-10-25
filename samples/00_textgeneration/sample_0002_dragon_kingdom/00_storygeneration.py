@@ -36,7 +36,14 @@ def define_dragon(metagame, dragon_name=''):
         'mood': dragon_mood,
         'wrathful_action': generate_attack_action(metagame, attacker='dragon', target='castle'),
         'peaceful_action': [
-                ['print', 'And there is a peaceful dragon looking for flowers on mountains.']
+                ['print', {
+                    'text': [
+                        'And there is a peaceful dragon looking for flowers on mountains.',
+                        'Amidst the peaks, a calm dragon is in pursuit of blooms.',
+                        'With a heart full of serenity, a dragon combs the mountains for flowers.'
+                        ]
+                    }
+                ]
             ],
         'sleepy_action': [
                 ['print', 'And the dragon went back to sleep.']

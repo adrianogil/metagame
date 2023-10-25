@@ -82,7 +82,9 @@ class ActionParser:
             msg = print_arg
             if msg.__class__ == list:
                 msg = self.run_action(msg[0], msg[1:], parent_args)
-                print(msg)
+            if msg.__class__ == dict:
+                msg = SimpleGrammar.parse(msg)
+
             print_msg += str(msg)
 
         printme(print_msg)
@@ -108,6 +110,8 @@ class ActionParser:
                 msg = print_arg
                 if msg.__class__ == list:
                     msg = self.run_action(msg[0], msg[1:], parent_args)
+                if msg.__class__ == dict:
+                    msg = SimpleGrammar.parse(msg)
                 print_msg += str(msg)
 
             printme(print_msg)
