@@ -102,7 +102,7 @@ class MetaGame(object):
         else:
             self.knownledge_base["game"]["history"] = []
             printmodule.set_game_buffer(self.knownledge_base["game"])
-            printme("=" * 8 + " Starting game " + "=" * 8 + "\n\n")
+            printme("=" * 8 + " Starting game " + "=" * 8 + "\n\n", debug=True)
             self.action_parser.propagate_event("on_game_started")
 
         while not self.knownledge_base["game"]["finished"]:
