@@ -14,6 +14,7 @@ from random import randint
 
 import types
 import json
+import copy
 import sys
 import ast
 
@@ -181,7 +182,7 @@ class ActionParser:
 
             self.global_vars["LAST_INSTANTIATE_ENTITY"] = new_concept
 
-            self.set_concept(new_concept, target_concept)
+            self.set_concept(new_concept, copy.deepcopy(target_concept))
 
         elif action_name == "propagate_event":
             self.propagate_event(data[0])
