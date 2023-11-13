@@ -303,6 +303,9 @@ class ActionParser:
                 target_value = concept_value[1:]
             else:
                 target_value = concept_value[0]
+        elif concept_value.__class__ == dict:
+            print(concept_value)
+            target_value = SimpleGrammar.parse(concept_value)
         else:
             target_value = concept_value
 

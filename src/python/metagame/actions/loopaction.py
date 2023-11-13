@@ -14,4 +14,4 @@ def run_foreach_action(action_parser, data, parent_args):
     concept_list = current_concept.copy()
 
     for index, concept in enumerate(concept_list):
-        action_parser.run_actions(data[1], [concept, index + 1])
+        action_parser.run_actions(data[1], [data[0] + "/" + concept, index + 1])
