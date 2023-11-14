@@ -36,8 +36,10 @@ def get_random(l):
 
 
 class SimpleGrammar:
-    def __init__(self):
+    def __init__(self, metagame=None):
         self.reset_tags()
+    
+        self.metagame = metagame
 
     def st(self, text):
         return self.set_text(text)
@@ -79,11 +81,11 @@ class SimpleGrammar:
 
         return text_evaluated
 
-    def parse(self, data=None, target_tag='text'):
+    def parse(self, data=None, target_tag='text', metagame=None):
         if data is None:
             # Method is used staticcaly
             data = self
-            grammar = SimpleGrammar()
+            grammar = SimpleGrammar(metagame)
             return grammar.parse(data, target_tag=target_tag)
 
         printme("[Debug] SimpleGrammar.parse - parsing grammar: %s" % (data,), debug=True)
@@ -121,6 +123,8 @@ class SimpleGrammar:
                 elif prefix_tag in self.text_functions:
                     real_tag = self.evaluate("#" + real_tag + "#")
                     tags_evaluated.append(self.text_functions[prefix_tag](real_tag))
+            elif '/' in t:
+                tags_evaluated.append(self.metagame.get_concept(t))
             elif t in self.tags:
                 # print(t)
                 tagged_text = get_random(self.tags[t])
