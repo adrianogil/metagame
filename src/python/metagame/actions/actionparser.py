@@ -84,7 +84,7 @@ class ActionParser:
             if msg.__class__ == list:
                 msg = self.run_action(msg[0], msg[1:], parent_args)
             if msg.__class__ == dict:
-                msg = SimpleGrammar.parse(msg)
+                msg = SimpleGrammar.parse(msg, metagame=self)
 
             print_msg += str(msg)
 
@@ -112,7 +112,7 @@ class ActionParser:
                 if msg.__class__ == list:
                     msg = self.run_action(msg[0], msg[1:], parent_args)
                 if msg.__class__ == dict:
-                    msg = SimpleGrammar.parse(msg)
+                    msg = SimpleGrammar.parse(msg, metagame=self)
                 print_msg += str(msg)
 
             printme(print_msg)
@@ -154,7 +154,7 @@ class ActionParser:
             else:
                 current_concept.pop(target_keywords[-1])
         elif action_name == "grammar":
-            grammar = SimpleGrammar()
+            grammar = SimpleGrammar(metagame=self)
 
             target_grammar = data[0]
             if target_grammar.__class__ == list:
@@ -188,6 +188,9 @@ class ActionParser:
             self.propagate_event(data[0])
         elif action_name in self.custom_actions:
             self.run_actions(self.custom_actions[action_name], data)
+        elif action_name == "random_choice":
+            if len(data) == 2:
+                return randint(int(data[0]), int(data[1]))
         elif action_name == "toggle_debug":
             metagame.utils.printme.show_debug = not metagame.utils.printme.show_debug
         elif action_name in self.action_parsers:
