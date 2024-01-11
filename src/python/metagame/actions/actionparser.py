@@ -2,6 +2,7 @@ from metagame.framework.grammar import SimpleGrammar
 from metagame.utils.printme import printme
 from metagame.utils.numbers import is_integer
 
+from .iterationaction import run_iterate_action
 from .searchaction import run_search_for_concept_action
 from .verifyaction import run_verify_action
 from .loopaction import run_foreach_action
@@ -35,6 +36,7 @@ class ActionParser:
         self.action_parsers = {
             "verify": run_verify_action,
             "for_each_concept": run_foreach_action,
+            "iterate": run_iterate_action,
             "search_for_concept": run_search_for_concept_action,
             "calc": run_calc_action
         }
@@ -49,7 +51,7 @@ class ActionParser:
 
     def parse_contextual_arg(self, arg, action_name, parent_args):
 
-        if (action_name != "verify" and action_name != "for_each_concept") and arg.__class__ == list:
+        if (action_name != "verify" and action_name not in ["for_each_concept", "iterate"]) and arg.__class__ == list:
             arg = self.run_actions(arg, parent_args)
 
         if arg.__class__ == str:
