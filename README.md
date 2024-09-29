@@ -43,10 +43,9 @@ Here is an example of a simple game file:
 }
 ```
 
-
 ## Contributing
 
-Contributions are welcome! Please read the contributing guidelines before making a pull request.
+Feel free to submit PRs. I will do my best to review and merge them if I consider them essential.
 
 ## License
 

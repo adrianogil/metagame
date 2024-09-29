@@ -7,6 +7,7 @@ from .searchaction import run_search_for_concept_action
 from .verifyaction import run_verify_action
 from .loopaction import run_foreach_action
 from .calcaction import run_calc_action
+from .promptaction import run_prompt_action
 
 import metagame.utils.printme
 
@@ -38,7 +39,8 @@ class ActionParser:
             "for_each_concept": run_foreach_action,
             "iterate": run_iterate_action,
             "search_for_concept": run_search_for_concept_action,
-            "calc": run_calc_action
+            "calc": run_calc_action,
+            "prompt": run_prompt_action
         }
 
     def add_custom_action(self, action_name, actions):

@@ -1,0 +1,11 @@
+{
+    "on_game_started": [
+        ["print",
+            [
+                "prompt",
+                "Generate a story about a dragon."
+            ]
+        ],
+        ["exit"]
+    ]
+}
