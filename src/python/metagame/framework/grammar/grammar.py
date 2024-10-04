@@ -1,7 +1,10 @@
 """ Main class for text generation """
+from .llmgrammar import generate_list_from_prompt
+
 from metagame.utils.printme import printme
 
 from random import randint
+import re
 
 
 def opposite_direction(d):
@@ -38,7 +41,7 @@ def get_random(l):
 class SimpleGrammar:
     def __init__(self, metagame=None):
         self.reset_tags()
-    
+
         self.metagame = metagame
 
     def st(self, text):
@@ -73,6 +76,18 @@ class SimpleGrammar:
         return self
 
     def evaluate(self, text):
+
+        # Evaluate prompts
+        text = self.evaluate_prompts(text)
+
+        current_tags = list(self.tags.keys())
+        for tag in current_tags:
+            new_tag_values = []
+            if self.tags[tag]:
+                for tag_value in self.tags[tag]:
+                    new_tag_values.append(self.evaluate_prompts(tag_value))
+                self.tags[tag] = new_tag_values
+
         found_tags = self.parse_tags_from(text)
 
         tags_evaluated = self.evaluate_taglist(found_tags)
@@ -164,6 +179,7 @@ class SimpleGrammar:
         found_tags = []
         inside_tag = False
 
+
         for s in text:
             if s == '#':
                 if inside_tag:
@@ -178,3 +194,25 @@ class SimpleGrammar:
                     current_tag = current_tag + s
 
         return found_tags
+
+    def evaluate_prompts(self, text):
+        '''
+            Prompts are between {{}}
+        '''
+        pattern = r"\{\{(.*?)\}\}"
+        prompts = re.findall(pattern, text)
+        if prompts:
+            printme(f"Prompts found: {prompts}", debug=True)
+            for prompt in prompts:
+                try:
+                    llm_list = generate_list_from_prompt(prompt)
+                    printme(f"Generated list from prompt {prompt} : {llm_list}", debug=True)
+                    random_tag_number = randint(0, 100000)
+                    self.add_tag(f"llm_tag_{random_tag_number}", llm_list)
+                    text = text.replace("{{" + prompt + "}}", f"#llm_tag_{random_tag_number}#")
+                except Exception as e:
+                    printme(f"Error parsing prompt: {e}", debug=True)
+        # else:
+        #     printme(f"No prompts found in text: {text}", debug=True)
+
+        return text

@@ -1,0 +1,13 @@
+{
+    "on_game_started": [
+        ["print", "Start story generation..."],
+        ["print",
+                {
+                    "text": ["A dragon had a #dragon_color# #dragon_body_part#."],
+                    "dragon_color": ["{{color adjectives that are suitable for describing a dragon}}"],
+                    "dragon_body_part": ["{{body parts that are suitable for a dragon}}"]
+                }
+        ],
+        ["exit"]
+    ]
+}
