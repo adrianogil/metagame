@@ -40,7 +40,7 @@ class ActionParser:
             "iterate": run_iterate_action,
             "search_for_concept": run_search_for_concept_action,
             "calc": run_calc_action,
-            "prompt": run_prompt_action
+            "llm": run_prompt_action
         }
 
     def add_custom_action(self, action_name, actions):
